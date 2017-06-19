@@ -3,6 +3,8 @@ package com.u.securekeys;
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Bridge between native and java for accessing secure keys.
@@ -35,12 +37,18 @@ public final class SecureEnvironment {
         throw new IllegalAccessException("This object cant be instantiated");
     }
 
+    @SuppressWarnings("unchecked")
     @Keep
     private static void tryNativeInit() throws Exception {
         Class<?> clazz = Class.forName(ENV_PROCESSED_MAP_NAME);
         Method method = clazz.getDeclaredMethod(ENV_PROCESSED_MAP_METHOD);
         method.setAccessible(true);
-        nativeInit((String[]) method.invoke(null));
+
+        HashMap<String, String> entries = (HashMap<String, String>) method.invoke(null);
+
+        for (Map.Entry<String, String> entry : entries.entrySet()) {
+            _putEntry(entry.getKey(), entry.getValue());
+        }
     }
 
     public static @NonNull String getString(@NonNull String key) {
@@ -48,7 +56,7 @@ public final class SecureEnvironment {
             return NAN_STRING;
         }
 
-        return nativeGetString(key);
+        return _getString(key);
     }
 
     public static long getLong(@NonNull String key) {
@@ -72,8 +80,8 @@ public final class SecureEnvironment {
     }
 
     @Keep
-    private static native String nativeGetString(String key);
+    private static native String _getString(String key);
     @Keep
-    private static native void nativeInit(String[] array);
+    private static native void _putEntry(String key, String value);
 
 }

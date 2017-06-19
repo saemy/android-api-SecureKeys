@@ -43,7 +43,7 @@ public class Encoder {
      * @param name string to hash
      * @return string with the hashed name
      */
-    private static String hash(String name) {
+    public String hash(String name) {
         try {
             MessageDigest m = MessageDigest.getInstance(hash);
             m.update(name.getBytes(Charset.forName(utf8)));
