@@ -6,16 +6,16 @@ A tiny lib (Less than 10 methods) to store constants where attackers will have a
 
 ### Description
 
-This library uses an annotationProcessor to store the constants in a new file (where the constants are encrypted), and via JNI it will later retrieve them decoding them inside the `.o` file.
+This library uses an annotationProcessor to store the constants in a new file (where the constants are encrypted), and via JNI it will later retrieve them decoding them inside the `.so` file.
 
-This way the attackers cant know the encoding system (because its inside the annotation processor), neither the decoding (unless they read the assembly code of the `.o` file). 
+This way the attackers cant know the encoding system (because its inside the annotation processor), neither the decoding. 
 
-**Note:** They can still "find" the class with the crypted constants or do a heapdump of the map inside the `.o` file. But since its encrypted they will have a harder time figuring the constants out.
+**Note:** They can still "find" the class with the crypted constants or do a heapdump of the map inside the `.so` file. But since its encrypted they will have a (way too much) harder time figuring the constants out.
 
 ### Relevant notes
 
 - The annotations used for the processor are removed in compile time, so they wont be shipped to the apk :)
-- The generated class by the apt will be shipped inside your apk, but all the constants will be already encrypted. (attacker could still do a heapdump to know the encrypted constants)
+- The generated class by the apt will be shipped inside your apk, but all the constants will be already encrypted. (attacker could still do a heapdump to know the encrypted constants or read that file)
 - Current encryption system is AES (CBC + Padding5) + Base64. AES key and vector are private and local to the repository (planning to make them customizable)
 
 ### Usage
@@ -63,26 +63,21 @@ Will look like this:
 ```Java
    ...
    L1
-    LINENUMBER 9 L1
+    LINENUMBER 8 L1
     ALOAD 0
-    ICONST_0
     // This string is "client-secret"
-    LDC "c+Ciy4ZAfaCkSK3aBgVCDg==;;;;jUvAlWYtbJJXOB5PWy1NMsgtAjOcBYdZpSgWcvBjnfwXtmyCsMFnPHeM4CrLdYPO2xmk2IAnOGhlsVn55eV6wA=="
-    AASTORE
+    LDC "fdce8e4a65b70d186bd77cba2e0c580dcf1c6497da9f1b70eed849497e1f8ba2"
+    // This string is the value of "client-secret"
+    LDC "jUvAlWYtbJJXOB5PWy1NMsgtAjOcBYdZpSgWcvBjnfwXtmyCsMFnPHeM4CrLdYPO2xmk2IAnOGhlsVn55eV6wA=="
+    INVOKEVIRTUAL java/util/HashMap.put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    POP
    L2
-    LINENUMBER 10 L2
-    ALOAD 0
-    ICONST_1
-    // This string is "key22"
-    LDC "zNgp44YJZLppymmiBdEL8A==;;;;Hk6WGAWtAPtVZYENYVUhkg=="
-    AASTORE
-   L3
    ...
 ```
 
 ### Proguard
 
-Currently the library supports transitively Proguard, so just by adding the aar you should be safe :)
+Currently the library supports transitively Proguard, so just by adding it you should be safe :)
 
 ### Benchmarks
 
@@ -92,11 +87,15 @@ Benchmark was ran on a Samsung Fame Lite (pretty old phone):
  * 512MB RAM
  * ISA ARMv7
  
-There were 5000 different keys encoded, and was tested 100 times the initializing of the library and the retrieval of a key (the 5000th)
+There were 5000 different keys encoded, and was tested 100 times the retrieval of a key of various lengths. Which key doesnt matter, since lookup is O(1):
 
-**Time to initialize the library** (ms): 209
+**Time to retrieve a key of length 1** (ms): 2
 
-**Time to retrieve the 5000th key** (ms): 144
+**Time to retrieve a key of length 10** (ms): 2
+
+**Time to retrieve a key of length 50** (ms): 2
+
+**Time to retrieve a key of length 5000** (ms): 4
 
 ### Contributing
 
@@ -114,3 +113,4 @@ Relevant notes for developing it:
 
 ### Missing features:
 - [ ] Let the consumer set their own AES key (this is tricky, key shouldnt be exposed to APK but should be visible for apt AND JNI)
+- [ ] Add cppunit for testing c++ classes
