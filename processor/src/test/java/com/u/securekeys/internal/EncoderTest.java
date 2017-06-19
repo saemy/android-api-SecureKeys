@@ -22,6 +22,16 @@ public class EncoderTest {
     }
 
     @Test
+    public void test_SHA256() {
+        String message = "test_message";
+
+        Encoder encoder = new Encoder();
+        String hash = encoder.hash(message);
+
+        Assert.assertEquals("3b7491dc016ac1a0b2e02372402c861fafa459294087e7cbe09f704d582d931f", hash);
+    }
+
+    @Test
     public void test_EncodeAES() {
         // Test array of bytes to crypt
         byte[] arr = {0x01, 0x02, 0x03};
