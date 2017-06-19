@@ -1,14 +1,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion project.targetApiLevel.toInteger()
+    buildToolsVersion project.androidBuildToolsVersion
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion project.minApiLevel
+        targetSdkVersion project.targetApiLevel
+        versionName project.versionName
         consumerProguardFile 'proguard-rules.pro'
         externalNativeBuild {
             cmake {
@@ -33,7 +32,7 @@ task setupJNILibrary() {
     doLast {
         def extension = org.apache.tools.ant.taskdefs.condition.Os.isFamily(
             org.apache.tools.ant.taskdefs.condition.Os.FAMILY_MAC) ? 'dylib' : 'so'
-        def soFilePath = "./build/core/src/main/cpp/libsecure-keys.${extension}";
+        def soFilePath = "./build/core/src/main/cpp/libsecure-keys.${extension}"
         File inputFile = new File(soFilePath)
         if (inputFile.exists()) {
             def possiblePlaces = System.properties.'java.library.path'.tokenize(':')

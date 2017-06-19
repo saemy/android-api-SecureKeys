@@ -4,6 +4,12 @@
 
 A tiny lib (Less than 10 methods) to store constants where attackers will have a harder time to find.
 
+### Requirements
+
+SecureKeys can be included in any Android application.
+
+SecureKeys supports Android 2.3 (Gingerbread / ApiLevel 9) and later.
+
 ### Description
 
 This library uses an annotationProcessor to store the constants in a new file (where the constants are encrypted), and via JNI it will later retrieve them decoding them inside the `.so` file.

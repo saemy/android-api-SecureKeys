@@ -2,15 +2,14 @@ apply plugin:'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion project.targetApiLevel.toInteger()
+    buildToolsVersion project.androidBuildToolsVersion
 
     defaultConfig {
         applicationId "com.u.testapp"
-        minSdkVersion 14
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion project.minApiLevel
+        targetSdkVersion project.targetApiLevel
+        versionName project.versionName
     }
     buildTypes {
         debug {
