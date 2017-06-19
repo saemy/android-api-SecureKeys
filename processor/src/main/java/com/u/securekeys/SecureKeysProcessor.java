@@ -9,6 +9,7 @@ import com.u.securekeys.internal.Encoder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -36,25 +37,22 @@ public class SecureKeysProcessor extends AbstractProcessor {
             roundEnvironment.getElementsAnnotatedWith(SecureKey.class),
             roundEnvironment.getElementsAnnotatedWith(SecureKeys.class)
         );
+        HashMap<String, String> resultMap = new HashMap<>();
 
         MethodSpec.Builder retrieveMethodBuilder = MethodSpec.methodBuilder("retrieve")
             .addModifiers(Modifier.FINAL, Modifier.PUBLIC, Modifier.STATIC)
-            .returns(String[].class)
-            .addStatement("String array[] = new String[" + annotations.size() + "]");
+            .returns(resultMap.getClass())
+            .addStatement("java.util.HashMap<String, String> resultMap = new java.util.HashMap<String,String>()");
 
-        int counter = 0;
         Encoder encoder = new Encoder();
         for (SecureKey annotation : annotations) {
-            String key = encoder.encode(annotation.key());
+            String key = encoder.hash(annotation.key());
             String value = encoder.encode(annotation.value());
 
-            retrieveMethodBuilder.addStatement("array[" + counter + "] = \"" + key + ";;;;" +
-                value + "\"");
-
-            ++counter;
+            retrieveMethodBuilder.addStatement("resultMap.put(\"" + key + "\", \"" + value + "\")");
         }
 
-        retrieveMethodBuilder.addStatement("return array");
+        retrieveMethodBuilder.addStatement("return resultMap");
 
         TypeSpec createdClass = TypeSpec.classBuilder(CLASS_NAME)
             .addModifiers(Modifier.FINAL)
@@ -62,7 +60,6 @@ public class SecureKeysProcessor extends AbstractProcessor {
             .build();
 
         JavaFile javaFile = JavaFile.builder(CLASS_CLASSPATH, createdClass)
-            .addFileComment("Method that retrieves the mapping of the values")
             .build();
 
         try {

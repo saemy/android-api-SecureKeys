@@ -4,6 +4,7 @@ import com.u.securekeys.annotation.SecureKey;
 import com.u.securekeys.annotation.SecureKeys;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,9 +56,9 @@ public class SecureEnvironmentTest {
             Class<?> clazz = Class.forName(ENV_PROCESSED_MAP_NAME);
             Method method = clazz.getDeclaredMethod(ENV_PROCESSED_MAP_METHOD);
             method.setAccessible(true);
-            String[] mappings = (String[]) method.invoke(null);
+            HashMap<String, String> mappings = (HashMap<String, String>) method.invoke(null);
 
-            Assert.assertEquals("There are only 3 keys, so something went wrong", 3, mappings.length);
+            Assert.assertEquals("There are only 3 keys, so something went wrong", 3, mappings.size());
         } catch (Exception ex) {
             fail(ex.getMessage());
         }

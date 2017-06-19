@@ -5,17 +5,14 @@
 
 #include "crypto/crypto_wrapper.h"
 
-#define _separator ";;;;"
 #define _default_response ""
 
-#define decode crypto_wrapper_decode
-
-std::map<std::string , std::string> mapVals;
+std::map<std::string , std::string> _map;
 
 extern "C" {
     JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved);
-    JNIEXPORT jstring JNICALL Java_com_u_securekeys_SecureEnvironment_nativeGetString(JNIEnv *env, jclass instance, jstring key);
-    JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment_nativeInit(JNIEnv *env, jclass instance, jobjectArray array);
+    JNIEXPORT jstring JNICALL Java_com_u_securekeys_SecureEnvironment__1getString(JNIEnv *env, jclass instance, jstring key);
+    JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1putEntry(JNIEnv *env, jclass instance, jobject key, jobject value);
 };
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -27,43 +24,39 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     return JNI_VERSION_1_6;
 }
 
-JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment_nativeInit
-        (JNIEnv *env, jclass instance, jobjectArray array) {
-    int stringCount = env->GetArrayLength(array);
+JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1putEntry
+        (JNIEnv *env, jclass instance, jobject key, jobject value) {
+    const char *raw_key = env->GetStringUTFChars((jstring) key, 0);
+    const char *raw_value = env->GetStringUTFChars((jstring) value, 0);
 
-    for (int i = 0; i < stringCount; i++) {
-        jstring string = (jstring) (env->GetObjectArrayElement(array, i));
-        const char *rawString = env->GetStringUTFChars(string, 0);
+    std::string _key(raw_key);
+    std::string _value(raw_value);
 
-        std::string keyval(rawString);
-        unsigned long separator = keyval.find(_separator);
-        if (separator != std::string::npos) {
-            mapVals[keyval.substr(0, separator)] = keyval.substr(separator + 4);
-        }
+    _map[_key] = _value;
 
-        if (string != NULL) {
-            (env)->ReleaseStringUTFChars(string, rawString);
-        }
-        env->DeleteLocalRef(string);
-    }
-
-    env->DeleteLocalRef(array);
+    env->ReleaseStringUTFChars((jstring) key, raw_key);
+    env->ReleaseStringUTFChars((jstring) value, raw_value);
 }
 
-JNIEXPORT jstring JNICALL Java_com_u_securekeys_SecureEnvironment_nativeGetString
+JNIEXPORT jstring JNICALL Java_com_u_securekeys_SecureEnvironment__1getString
         (JNIEnv *env, jclass instance, jstring key) {
-    const char *rawString = env->GetStringUTFChars(key, 0);
-    std::string paramKey(rawString);
-    for(std::pair<std::string, std::string> const &pair : mapVals) {
-        if (paramKey.compare(decode(env, pair.first)) == 0) {
-            env->ReleaseStringUTFChars(key, rawString);
-            env->DeleteLocalRef(key);
-            return (env)->NewStringUTF(decode(env, pair.second).c_str());
-        }
-    }
+    CryptoWrapper crypto;
 
-    env->ReleaseStringUTFChars(key, rawString);
+    // Get the hash of the string param
+    const char *raw_key = env->GetStringUTFChars(key, 0);
+    std::string _key(raw_key);
+    std::string hashed_key = crypto.encode_key(_key);
+
+    // Release allocated stuff
+    env->ReleaseStringUTFChars(key, raw_key);
     env->DeleteLocalRef(key);
 
-    return (env)->NewStringUTF(_default_response);
+    // Check if the map contains the key and return it if exists
+    std::string crypted_value = _map[hashed_key];
+    std::string value(_default_response);
+    if (!crypted_value.empty()) {
+        value = crypto.decode_value(crypted_value);
+    }
+
+    return (env)->NewStringUTF(value.c_str());
 }

@@ -11,10 +11,12 @@ add_library(secure-keys
 			secure-keys.cpp
 			crypto/aes.cpp
 			crypto/base64.cpp
+			crypto/sha256.cpp
 			crypto/crypto_wrapper.cpp
 
 			crypto/aes.h
 			crypto/base64.h
+			crypto/sha256.h
 			crypto/crypto_wrapper.h)
 
 set(CMAKE_CXX_FLAGS "-fPIC")
