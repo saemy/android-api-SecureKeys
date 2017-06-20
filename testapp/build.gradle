@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion project.targetApiLevel.toInteger()
@@ -40,9 +39,9 @@ dependencies {
 
     // For using the published ones:
 //    compile me.core
-//    apt me.processor
+//    annotationProcessor me.processor
 
     // For using the project ones:
     compile project(path:':core')
-    apt project(path:':processor')
+    annotationProcessor project(path:':processor')
 }
