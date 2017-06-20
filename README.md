@@ -4,12 +4,6 @@
 
 A tiny lib (Less than 10 methods) to store constants where attackers will have a harder time to find.
 
-
-### Size
-
-- aar: Neglegible (1 class of 7 methods)
-- native libraries: 88kb the `.so` for each ABI (If no abi split, around 500kb)
-
 ### Requirements
 
 SecureKeys can be included in any Android application.
@@ -24,6 +18,11 @@ This way the attackers cant know the encoding system (because its inside the ann
 
 **Note:** They can still "find" the class with the crypted constants or do a heapdump of the map inside the `.so` file. But since its encrypted they will have a (way too much) harder time figuring the constants out.
 
+### Size
+
+- _Aar_: Neglegible (1 class of 7 methods)
+- _Native libraries_: 88kb the `.so` for each ABI (If no abi split, around 500kb)
+
 ### Relevant notes
 
 - The annotations used for the processor are removed in compile time, so they wont be shipped to the apk :)
@@ -32,14 +31,18 @@ This way the attackers cant know the encoding system (because its inside the ann
 
 ### Usage
 
+#### Adding it to your project
+
 Add in your `build.gradle`:
 
-```groovy
-compile "com.saantiaguilera.securekeys:core:<latest_version>"
-apt "com.saantiaguilera.securekeys:processor:<latest_version>"
+```gradle
+dependencies {
+    compile "com.saantiaguilera.securekeys:core:<latest_version>"
+    apt "com.saantiaguilera.securekeys:processor:<latest_version>"
+}
 ```
 
-For knowing the `<latest_version>` please check [Bintray](https://bintray.com/saantiaguilera/maven/com.saantiaguilera.securekeys.core) / the badge / GH releases
+#### Getting started
 
 Annotate secure stuff wherever you like as:
 
@@ -72,10 +75,9 @@ SecureEnvironment.getDouble("time_for_destroying_the_world");
 
 ### Code generation
 
-Generated code for this 2 annotations:
+Generated code for this annotation:
 ```Java
 @SecureKey(key = "client-secret", value = "aD98E2GEk23TReYds9Zs9zdSdDBi23EAsdq29fXkpsDwp0W+h")
-@SecureKey(key = "key22", value = "value2")
 ```
 Will look like this:
 ```Java
