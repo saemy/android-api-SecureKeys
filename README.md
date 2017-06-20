@@ -38,7 +38,7 @@ Add in your `build.gradle`:
 ```gradle
 dependencies {
     compile "com.saantiaguilera.securekeys:core:<latest_version>"
-    apt "com.saantiaguilera.securekeys:processor:<latest_version>"
+    annotationProcessor "com.saantiaguilera.securekeys:processor:<latest_version>"
 }
 ```
 
