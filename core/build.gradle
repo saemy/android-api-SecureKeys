@@ -1,5 +1,3 @@
-apply plugin: 'com.android.library'
-
 android {
     compileSdkVersion project.targetApiLevel.toInteger()
     buildToolsVersion project.androidBuildToolsVersion
@@ -7,7 +5,7 @@ android {
     defaultConfig {
         minSdkVersion project.minApiLevel
         targetSdkVersion project.targetApiLevel
-        versionName project.versionName
+        versionName libraryVersion
         consumerProguardFile 'proguard-rules.pro'
         externalNativeBuild {
             cmake {
@@ -76,6 +74,10 @@ task teardownJNILibrary() {
 
 afterEvaluate {
     android.buildTypes.all { buildType ->
+        if (PUBLISH || isPublishing) {
+            return
+        }
+
         def buildTypeTask = tasks["compile${buildType.name.capitalize()}UnitTestSources"]
         buildTypeTask.dependsOn project.tasks.setupJNILibrary
         project.tasks.teardownJNILibrary.shouldRunAfter buildTypeTask
@@ -83,10 +85,13 @@ afterEvaluate {
 }
 
 dependencies {
-    compile project(path:':annotation')
+    if (isPublishing) {
+        compile me.annotation
+    } else {
+        compile project(path:':annotation')
+    }
 
     compile support.annotations
 
-    testCompile testing.junit
     testAnnotationProcessor project(path:':processor')
 }

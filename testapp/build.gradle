@@ -1,4 +1,4 @@
-apply plugin:'com.android.application'
+apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
 android {
@@ -9,7 +9,7 @@ android {
         applicationId "com.u.testapp"
         minSdkVersion project.minApiLevel
         targetSdkVersion project.targetApiLevel
-        versionName project.versionName
+        versionName libraryVersion
     }
     buildTypes {
         debug {
@@ -38,6 +38,11 @@ android {
 dependencies {
     compile support.appcompat
 
+    // For using the published ones:
+//    compile me.core
+//    apt me.processor
+
+    // For using the project ones:
     compile project(path:':core')
     apt project(path:':processor')
 }

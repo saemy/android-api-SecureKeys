@@ -1,8 +1,14 @@
 # SecureKeys
 
-[![CircleCI](https://circleci.com/gh/saantiaguilera/android-api-SecureKeys/tree/develop.svg?style=svg)](https://circleci.com/gh/saantiaguilera/android-api-SecureKeys/tree/develop)
+[![CircleCI](https://circleci.com/gh/saantiaguilera/android-api-SecureKeys/tree/develop.svg?style=svg)](https://circleci.com/gh/saantiaguilera/android-api-SecureKeys/tree/develop) [![Download](https://api.bintray.com/packages/saantiaguilera/maven/com.saantiaguilera.securekeys.core/images/download.svg) ](https://bintray.com/saantiaguilera/maven/com.saantiaguilera.securekeys.core/_latestVersion)
 
 A tiny lib (Less than 10 methods) to store constants where attackers will have a harder time to find.
+
+
+### Size
+
+- aar: Neglegible (1 class of 7 methods)
+- native libraries: 88kb the `.so` for each ABI (If no abi split, around 500kb)
 
 ### Requirements
 
@@ -26,11 +32,17 @@ This way the attackers cant know the encoding system (because its inside the ann
 
 ### Usage
 
-**I havent uploaded yet to bintray, so currently theres no way :poop:** -> Soon will be :)
+Add in your `build.gradle`:
 
-For the moment, I highly recommend you to add this project manually so you can also change for a custom initial_vector and aes_key.
+```groovy
+compile "com.saantiaguilera.securekeys:core:<latest_version>"
+apt "com.saantiaguilera.securekeys:processor:<latest_version>"
+```
+
+For knowing the `<latest_version>` please check [Bintray](https://bintray.com/saantiaguilera/maven/com.saantiaguilera.securekeys.core) / the badge / GH releases
 
 Annotate secure stuff wherever you like as:
+
 ```Java
 @SecureKeys({
     @SecureKey(key = "client_secret", value = "my_client_secret..."),
@@ -117,6 +129,7 @@ Relevant notes for developing it:
 - JNI/Java bridge Tests are not supported by the platform so a "proxy" was created for giving it compatibility. Since this is not crucial for the project, it only works from the IDE, not from console (I should add all the classpaths dynamically before running the JUnit Starter. **Please ensure ALL the tests of the `:core` module pass from the Android Studio IDE**
 - JNI Tests are not supported out of the box, so there are no tests for it. A PR is welcome adding them (using cppunit or some tool ofc)
 
-### Missing features:
-- [ ] Let the consumer set their own AES key (this is tricky, key shouldnt be exposed to APK but should be visible for apt AND JNI)
+### Future roadmap:
+- [ ] Let the consumer set their own AES key (this is tricky, key shouldnt be exposed to APK but should be visible for apt AND JNI), maybe defer the `.so` compilation to the application and ship in the aar `.cpp/.h` classes?
 - [ ] Add cppunit for testing c++ classes
+- [ ] Let the dev change the filename where the constants are stored
