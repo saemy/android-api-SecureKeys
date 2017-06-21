@@ -2,15 +2,12 @@ package com.u.securekeys;
 
 import com.u.securekeys.annotation.SecureKey;
 import com.u.securekeys.annotation.SecureKeys;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.u.securekeys.SecureEnvironment.ENV_PROCESSED_MAP_METHOD;
-import static com.u.securekeys.SecureEnvironment.ENV_PROCESSED_MAP_NAME;
 import static org.junit.Assert.fail;
 
 /**
@@ -25,24 +22,12 @@ import static org.junit.Assert.fail;
 })
 public class SecureEnvironmentTest {
 
+    private static final String ENV_PROCESSED_MAP_NAME = "android.util.SCCache";
+    private static final String ENV_PROCESSED_MAP_METHOD = "getElements";
+
     @Before
     public void setUp() {
         SecureEnvironment.getString("nothing");
-    }
-
-    /**
-     * Check we can initialize the native library correctly
-     */
-    @Test
-    public void test_JNIInitialized() {
-        try {
-            Field initializedField = SecureEnvironment.class.getDeclaredField("initialized");
-            initializedField.setAccessible(true);
-            Boolean initialized = initializedField.getBoolean(null);
-            Assert.assertTrue(initialized);
-        } catch (Exception ex) {
-            fail(ex.getMessage());
-        }
     }
 
     /**
@@ -60,6 +45,7 @@ public class SecureEnvironmentTest {
 
             Assert.assertEquals("There are only 3 keys, so something went wrong", 3, mappings.size());
         } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
