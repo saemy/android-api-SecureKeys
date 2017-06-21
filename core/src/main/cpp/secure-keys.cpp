@@ -34,53 +34,59 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     }
 
     jclass class_ProcessedMap = (env)->FindClass("android/util/SCCache");
-    jclass class_HashMap = (env)->FindClass("java/util/HashMap");
-    jclass class_Set = (env)->FindClass("java/util/Set");
-    jclass class_MapEntry = (env)->FindClass("java/util/Map$Entry");
 
-    jobject object_ProcessedValuesHashMap;
-    jobject object_ProcessedValuesEntrySet;
-    jobjectArray object_ProcessedValuesArray;
+    if (class_ProcessedMap != NULL) {
+        jclass class_HashMap = (env)->FindClass("java/util/HashMap");
+        jclass class_Set = (env)->FindClass("java/util/Set");
+        jclass class_MapEntry = (env)->FindClass("java/util/Map$Entry");
 
-    // Get the processed map elements from the class
-    jmethodID method_Retrieve = env->GetStaticMethodID(class_ProcessedMap, "getElements", "()Ljava/util/HashMap;");
-    object_ProcessedValuesHashMap = env->CallStaticObjectMethod(class_ProcessedMap, method_Retrieve);
+        jobject object_ProcessedValuesHashMap;
+        jobject object_ProcessedValuesEntrySet;
+        jobjectArray object_ProcessedValuesArray;
 
-    // Get the set with all the elements in the hashmap
-    jmethodID method_EntrySet = env->GetMethodID(class_HashMap, "entrySet", "()Ljava/util/Set;");
-    object_ProcessedValuesEntrySet = env->CallObjectMethod(object_ProcessedValuesHashMap, method_EntrySet);
+        // Get the processed map elements from the class
+        jmethodID method_Retrieve = env->GetStaticMethodID(class_ProcessedMap, "getElements", "()Ljava/util/HashMap;");
+        object_ProcessedValuesHashMap = env->CallStaticObjectMethod(class_ProcessedMap, method_Retrieve);
 
-    // Get the set as an array
-    jmethodID method_EntrySetToArray = env->GetMethodID(class_Set, "toArray", "()[Ljava/lang/Object;");
-    object_ProcessedValuesArray = (jobjectArray) env->CallObjectMethod(object_ProcessedValuesEntrySet, method_EntrySetToArray);
+        // Get the set with all the elements in the hashmap
+        jmethodID method_EntrySet = env->GetMethodID(class_HashMap, "entrySet", "()Ljava/util/Set;");
+        object_ProcessedValuesEntrySet = env->CallObjectMethod(object_ProcessedValuesHashMap, method_EntrySet);
 
-    // Get size of array
-    jsize size = env->GetArrayLength(object_ProcessedValuesArray);
+        // Get the set as an array
+        jmethodID method_EntrySetToArray = env->GetMethodID(class_Set, "toArray", "()[Ljava/lang/Object;");
+        object_ProcessedValuesArray = (jobjectArray) env->CallObjectMethod(object_ProcessedValuesEntrySet,
+                                                                           method_EntrySetToArray);
 
-    // Clean local table in case we can overflow it
-    env->DeleteLocalRef(object_ProcessedValuesHashMap);
-    env->DeleteLocalRef(object_ProcessedValuesEntrySet);
+        // Get size of array
+        jsize size = env->GetArrayLength(object_ProcessedValuesArray);
 
-    // Start iterating inside it
-    for (int i = 0 ; i < size ; ++i) {
-        // Get Map.Entry object from it
-        jobject object_MapEntryElement = env->GetObjectArrayElement(object_ProcessedValuesArray, i);
+        // Clean local table in case we can overflow it
+        env->DeleteLocalRef(object_ProcessedValuesHashMap);
+        env->DeleteLocalRef(object_ProcessedValuesEntrySet);
 
-        // Get KEY field
-        jmethodID method_GetKey = env->GetMethodID(class_MapEntry, "getKey", "()Ljava/lang/Object;");
-        jstring object_KeyString = (jstring) env->CallObjectMethod(object_MapEntryElement, method_GetKey);
+        // Start iterating inside it
+        for (int i = 0; i < size; ++i) {
+            // Get Map.Entry object from it
+            jobject object_MapEntryElement = env->GetObjectArrayElement(object_ProcessedValuesArray, i);
 
-        // Get VALUE field
-        jmethodID method_GetValue = env->GetMethodID(class_MapEntry, "getValue", "()Ljava/lang/Object;");
-        jstring object_ValueString = (jstring) env->CallObjectMethod(object_MapEntryElement, method_GetValue);
+            // Get KEY field
+            jmethodID method_GetKey = env->GetMethodID(class_MapEntry, "getKey", "()Ljava/lang/Object;");
+            jstring object_KeyString = (jstring) env->CallObjectMethod(object_MapEntryElement, method_GetKey);
 
-        // Put entries in the map
-        put_entry(env, object_KeyString, object_ValueString);
+            // Get VALUE field
+            jmethodID method_GetValue = env->GetMethodID(class_MapEntry, "getValue", "()Ljava/lang/Object;");
+            jstring object_ValueString = (jstring) env->CallObjectMethod(object_MapEntryElement, method_GetValue);
 
-        // Clean table so we dont overflow it
-        env->DeleteLocalRef(object_KeyString);
-        env->DeleteLocalRef(object_ValueString);
-        env->DeleteLocalRef(object_MapEntryElement);
+            // Put entries in the map
+            put_entry(env, object_KeyString, object_ValueString);
+
+            // Clean table so we dont overflow it
+            env->DeleteLocalRef(object_KeyString);
+            env->DeleteLocalRef(object_ValueString);
+            env->DeleteLocalRef(object_MapEntryElement);
+        }
+    } else {
+        env->ExceptionClear();
     }
 
     return JNI_VERSION_1_6;
