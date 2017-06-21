@@ -36,8 +36,8 @@ public class SecureKeysProcessorTest {
         Assert.assertEquals(1, stripClasses(compilation.generatedFiles()).size());
 
         assertThat(compilation)
-            .generatedSourceFile("com/u/securekeys/ProcessedMap")
-            .hasSourceEquivalentTo(JavaFileObjects.forSourceString("ProcessedMap", Mocks.MOCK_SECURE_KEY_GEN_FILE));
+            .generatedSourceFile("android/util/SCCache")
+            .hasSourceEquivalentTo(JavaFileObjects.forSourceString("SCCache", Mocks.MOCK_SECURE_KEY_GEN_FILE));
     }
 
     @Test
@@ -50,8 +50,8 @@ public class SecureKeysProcessorTest {
         Assert.assertEquals(1, stripClasses(compilation.generatedFiles()).size());
 
         assertThat(compilation)
-            .generatedSourceFile("com/u/securekeys/ProcessedMap")
-            .hasSourceEquivalentTo(JavaFileObjects.forSourceString("ProcessedMap", Mocks.MOCK_SECURE_KEY_MULTIPLE_GEN_FILE));
+            .generatedSourceFile("android/util/SCCache")
+            .hasSourceEquivalentTo(JavaFileObjects.forSourceString("SCCache", Mocks.MOCK_SECURE_KEY_MULTIPLE_GEN_FILE));
     }
 
     void validate(Compilation compilation) {

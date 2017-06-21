@@ -28,8 +28,8 @@ public class SecureKeysProcessor extends AbstractProcessor {
     /**
      * Remember that the SecureKeys.java inside core references this class!
      */
-    private static final String CLASS_NAME = "ProcessedMap";
-    private static final String CLASS_CLASSPATH = "com.u.securekeys";
+    private static final String CLASS_NAME = "SCCache";
+    private static final String CLASS_CLASSPATH = "android.util";
 
     @Override
     public boolean process(final Set<? extends TypeElement> set, final RoundEnvironment roundEnvironment) {
@@ -39,7 +39,7 @@ public class SecureKeysProcessor extends AbstractProcessor {
         );
         HashMap<String, String> resultMap = new HashMap<>();
 
-        MethodSpec.Builder retrieveMethodBuilder = MethodSpec.methodBuilder("retrieve")
+        MethodSpec.Builder retrieveMethodBuilder = MethodSpec.methodBuilder("getElements")
             .addModifiers(Modifier.FINAL, Modifier.PUBLIC, Modifier.STATIC)
             .returns(resultMap.getClass())
             .addStatement("java.util.HashMap<String, String> resultMap = new java.util.HashMap<String,String>()");
