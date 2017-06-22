@@ -73,6 +73,29 @@ SecureEnvironment.getLong("crash_tracking_system_user_id");
 SecureEnvironment.getDouble("time_for_destroying_the_world");
 ```
 
+### Configuring
+
+**For the next version, this isnt deployed yet**
+
+If you want to set yout custom encryption values or restrict the library boundaries, you can provide a `@SecureConfigurations` annotation with your own customizations. Please note that only one annotation should be present.
+
+```Java
+@SecureConfigurations(
+    aesKey = { /* 32 byte array length key */ },
+    aesInitialVector = { /* 16 byte array length iv */ },
+    useAesRandomly = false, /* Generates random key/iv for each build. This overwrites custom keys/ivs */
+    blockIfDebugging = false, /* Library shuts down itself if detects a phone in debug */
+    blockIfADB = false, /* Library shuts down itself if ADB is detected */
+    blockIfEmulator = false, /* Library shuts down itself if phone is an emulator */
+    blockIfPhoneNotSecure = false /* ... if phone is rooted or alike */
+)
+public class MainApplication extends Application {
+    // ... 
+}    
+```
+
+When the library gets blocked, it will return empty strings no matter the key used. By no mean it will crash or output stacktraces/messages the attackers can benefit from.
+
 ### Code generation
 
 Generated code for this annotation:
@@ -130,8 +153,3 @@ Modules:
 Relevant notes for developing it:
 - JNI/Java bridge Tests are not supported by the platform so a "proxy" was created for giving it compatibility. Since this is not crucial for the project, it only works from the IDE, not from console (I should add all the classpaths dynamically before running the JUnit Starter. **Please ensure ALL the tests of the `:core` module pass from the Android Studio IDE**
 - JNI Tests are not supported out of the box, so there are no tests for it. A PR is welcome adding them (using cppunit or some tool ofc)
-
-### Future roadmap:
-- [ ] Let the consumer set their own AES key (this is tricky, key shouldnt be exposed to APK but should be visible for apt AND JNI), maybe defer the `.so` compilation to the application and ship in the aar `.cpp/.h` classes?
-- [ ] Add cppunit for testing c++ classes
-- [ ] Let the dev change the filename where the constants are stored

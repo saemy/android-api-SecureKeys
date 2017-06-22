@@ -27,9 +27,9 @@ public class Mocks {
         "\n" +
         "final class SCCache {\n" +
         "  public static final HashMap getElements() {\n" +
-        "    java.util.HashMap<String, String> resultMap = new java.util.HashMap<String,String>();\n" +
-        "    resultMap.put(\"2c70e12b7a0646f92279f427c7b38e7334d8e5389cff167a1dc30e73f826b683\", \"2/lhAK3rkMJXwau5KsBvEA==\");\n" +
-        "    return resultMap;\n" +
+        "    java.util.HashMap<String, String> _var = new java.util.HashMap<String,String>();\n" +
+        "    _var.put(\"2c70e12b7a0646f92279f427c7b38e7334d8e5389cff167a1dc30e73f826b683\", \"2/lhAK3rkMJXwau5KsBvEA==\");\n" +
+        "    return _var;\n" +
         "  }\n" +
         "}";
 
@@ -49,10 +49,10 @@ public class Mocks {
         "\n" +
         "final class SCCache {\n" +
         "  public static final HashMap getElements() {\n" +
-        "    java.util.HashMap<String, String> resultMap = new java.util.HashMap<String,String>();\n" +
-        "    resultMap.put(\"2c70e12b7a0646f92279f427c7b38e7334d8e5389cff167a1dc30e73f826b683\", \"2/lhAK3rkMJXwau5KsBvEA==\");\n" +
-        "    resultMap.put(\"ae448ac86c4e8e4dec645729708ef41873ae79c6dff84eff73360989487f08e5\", \"J2jHPSzh8VORCgND0L9A5g==\");\n" +
-        "    return resultMap;\n" +
+        "    java.util.HashMap<String, String> _var = new java.util.HashMap<String,String>();\n" +
+        "    _var.put(\"2c70e12b7a0646f92279f427c7b38e7334d8e5389cff167a1dc30e73f826b683\", \"2/lhAK3rkMJXwau5KsBvEA==\");\n" +
+        "    _var.put(\"ae448ac86c4e8e4dec645729708ef41873ae79c6dff84eff73360989487f08e5\", \"J2jHPSzh8VORCgND0L9A5g==\");\n" +
+        "    return _var;\n" +
         "  }\n" +
         "}";
 

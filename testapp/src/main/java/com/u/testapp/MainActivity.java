@@ -8,6 +8,23 @@ import com.u.securekeys.annotation.SecureKey;
 import com.u.securekeys.annotation.SecureKeys;
 import junit.framework.Assert;
 
+/**
+ * For having configurations, we could add here:
+ \@SecureConfigurations() {
+    useAesRandomly = bool,
+ //   aesKey = { 32 length byte array }
+ //   aesInitialVector = { 16 length byte array }, // if you want to use specials like 0xca, cast it to byte! "(byte) 0xca"
+    aesInitialVector = { 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00 },
+    aesKey = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x00,
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x00,
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x00,
+        0x01, 0x02 },
+    blockIfDebugging = bool,
+    blockIfEmulator = bool,
+    blockIfABD = bool,
+    blockIfPhoneNotSecure = bool
+ }
+ */
 @SecureKeys({
     @SecureKey(key = "a", value = "e"),
     @SecureKey(key = "b", value = "f"),
