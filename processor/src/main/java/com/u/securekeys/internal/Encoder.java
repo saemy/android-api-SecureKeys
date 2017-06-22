@@ -25,25 +25,30 @@ public class Encoder {
     private static final int STRING_RADIX_REPRESENTATION = 16;
 
     // Initial vector for AES cipher
-    private static final byte initialVectorBytes[] = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04,
-        0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+    private final byte[] initialVectorBytes;
 
     // Key used for AES cypher
-    private static final byte keyBytes[] = new byte[] { 0x60, 0x3d, (byte) 0xeb,
-        0x10, 0x15, (byte) 0xca, 0x71, (byte) 0xbe, 0x2b, 0x73,
-        (byte) 0xae, (byte) 0xf0, (byte) 0x85, 0x7d, 0x77, (byte) 0x81,
-        0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, (byte) 0xd7, 0x2d,
-        (byte) 0x98, 0x10, (byte) 0xa3, 0x09, 0x14, (byte) 0xdf,
-        (byte) 0xf4 };
+    private final byte[] keyBytes;
 
-    public Encoder() {}
+    public Encoder(byte[] initialVectorBytes, byte[] keyBytes) {
+        if (keyBytes.length != 32) {
+            throw new IllegalStateException("Key bytes length should be 32 and its: " + initialVectorBytes.length);
+        }
+
+        if (initialVectorBytes.length != 16) {
+            throw new IllegalStateException("Initial Vector bytes length should be 16 and its: " + initialVectorBytes.length);
+        }
+
+        this.initialVectorBytes = initialVectorBytes;
+        this.keyBytes = keyBytes;
+    }
 
     /**
      * hash a string using hash mode.
      * @param name string to hash
      * @return string with the hashed name
      */
-    public String hash(String name) {
+    public static String hash(String name) {
         try {
             MessageDigest m = MessageDigest.getInstance(hash);
             m.update(name.getBytes(Charset.forName(utf8)));
@@ -55,9 +60,13 @@ public class Encoder {
         }
     }
 
+    public static String base64(byte[] bytes) {
+        return DatatypeConverter.printBase64Binary(bytes);
+    }
+
     public String encode(String what) {
         try {
-            return DatatypeConverter.printBase64Binary(aes(what.getBytes()));
+            return base64(aes(what.getBytes(Charset.forName("UTF-8"))));
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Couldnt encode value: " + what, e);

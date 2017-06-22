@@ -1,5 +1,6 @@
 package com.u.securekeys.internal;
 
+import com.u.securekeys.annotation.SecureConfigurations;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,8 +26,7 @@ public class EncoderTest {
     public void test_SHA256() {
         String message = "test_message";
 
-        Encoder encoder = new Encoder();
-        String hash = encoder.hash(message);
+        String hash = Encoder.hash(message);
 
         Assert.assertEquals("3b7491dc016ac1a0b2e02372402c861fafa459294087e7cbe09f704d582d931f", hash);
     }
@@ -36,7 +36,7 @@ public class EncoderTest {
         // Test array of bytes to crypt
         byte[] arr = {0x01, 0x02, 0x03};
 
-        Encoder encoder = new Encoder();
+        Encoder encoder = defaultEncoder();
         byte[] aesarr = encoder.aes(arr);
 
         Assert.assertEquals("F81B0C071652901E54BA6781CED9589D", bytesToHex(aesarr));
@@ -47,10 +47,20 @@ public class EncoderTest {
         // Test array of bytes to crypt
         String value = "test_message";
 
-        Encoder encoder = new Encoder();
+        Encoder encoder = defaultEncoder();
         String encodedValue = encoder.encode(value);
 
         Assert.assertEquals("MPRSyn8EtW48RrsKM8WFwg==", encodedValue);
+    }
+
+    private Encoder defaultEncoder() {
+        try {
+            byte[] iv = (byte[]) SecureConfigurations.class.getDeclaredMethod("aesInitialVector").getDefaultValue();
+            byte[] key = (byte[]) SecureConfigurations.class.getDeclaredMethod("aesKey").getDefaultValue();
+            return new Encoder(iv, key);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
 }
