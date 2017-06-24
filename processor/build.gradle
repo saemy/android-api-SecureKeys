@@ -1,9 +1,5 @@
 dependencies {
-    if (isPublishing) {
-        compile me.annotation
-    } else {
-        compile project(path:':annotation')
-    }
+    compile project(path:':annotation')
 
     compile misc.javapoet
 

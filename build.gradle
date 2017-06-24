@@ -1,21 +1,19 @@
+apply plugin: 'com.saantiaguilera.gradle.publish.helper'
+
 buildscript {
     repositories {
         jcenter()
-        mavenLocal()
         maven {
-            // Until it is in jcenter
-            url  "http://dl.bintray.com/saantiaguilera/maven"
+            url 'https://dl.bintray.com/saantiaguilera/maven/'
         }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.2'
 
-        if (PUBLISH) {
-            classpath 'com.saantiaguilera.gradle.helper:library:1.0.0'
+        classpath "com.saantiaguilera.gradle.publish.helper:core:2.0.1"
 
-            classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3")
-            classpath("com.github.dcendents:android-maven-gradle-plugin:1.5")
-        }
+        classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3")
+        classpath("com.github.dcendents:android-maven-gradle-plugin:1.5")
     }
 }
 
@@ -25,33 +23,46 @@ allprojects {
         maven {
             url "https://maven.google.com"
         }
-        maven {
-            // Until it is in jcenter
-            url  "http://dl.bintray.com/saantiaguilera/maven"
-        }
     }
+}
+
+publishGlobalConfigurations {
+    groupId = project.groupId
+    versionName = libraryVersion
+
+    url = "https://github.com/saantiaguilera/android-api-SecureKeys"
+
+    bintrayUser = System.getenv('BINTRAY_USER')
+    bintrayApiKey = System.getenv('BINTRAY_KEY')
+
+    licenseUrl = "http://www.opensource.org/licenses/BSD-3-Clause"
+    licenseName = "The 3-Clause BSD License"
 }
 
 apply from: 'dependencies.gradle'
 
-configure(subprojects.findAll { it.name != "testapp" }) {
+configure(subprojects.findAll { it.name != 'testapp' }) { subproject ->
     def androidLibs = ['core']
     def javaLibs = ['annotation', 'processor']
 
-    if (androidLibs.contains(it.name)) {
-        if (PUBLISH) {
-            apply plugin: 'com.saantiaguilera.gradle.library'
-        } else {
-            apply plugin: 'com.android.library'
+    if (androidLibs.contains(subproject.name)) {
+        apply plugin: 'com.android.library'
+
+        android {
+            compileSdkVersion project.targetApiLevel.toInteger()
+            buildToolsVersion project.androidBuildToolsVersion
+
+            defaultConfig {
+                minSdkVersion project.minApiLevel
+                targetSdkVersion project.targetApiLevel
+                versionName libraryVersion
+                consumerProguardFile 'proguard-rules.pro'
+            }
         }
     }
 
-    if (javaLibs.contains(it.name)) {
-        if (PUBLISH) {
-            apply plugin: 'com.saantiaguilera.gradle.java'
-        } else {
-            apply plugin: 'java'
-        }
+    if (javaLibs.contains(subproject.name)) {
+        apply plugin: 'java'
 
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
@@ -61,34 +72,8 @@ configure(subprojects.findAll { it.name != "testapp" }) {
         mavenCentral()
     }
 
-    ext.isPublishing = PUBLISH && it.gradle.startParameter.taskNames.toListString().contains("${it.name}:publish")
-
-    if (PUBLISH) {
-        publisher.groupId = groupId
-        publisher.artifactId = it.name
-        publisher.version = libraryVersion
-    }
-
     dependencies {
         testCompile testing.junit
-    }
-}
-
-task publishRelease() {
-    def releaseOrder = ['annotation', 'core', 'processor']
-    def getProjectByName = { name ->
-        for (Project subproject : subprojects) {
-            if (subproject.name == name) {
-                return subproject
-            }
-        }
-        return null
-    }
-    doLast {
-        releaseOrder.each { lib ->
-            def libProject = getProjectByName lib
-            libProject.tasks.publishRelease.execute()
-        }
     }
 }
 
