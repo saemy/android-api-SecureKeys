@@ -5,10 +5,10 @@ android {
     buildToolsVersion project.androidBuildToolsVersion
 
     defaultConfig {
-        applicationId "com.u.testapp"
         minSdkVersion project.minApiLevel
         targetSdkVersion project.targetApiLevel
         versionName libraryVersion
+        applicationId "com.u.testapp"
     }
     buildTypes {
         debug {
