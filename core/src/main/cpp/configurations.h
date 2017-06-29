@@ -11,19 +11,17 @@
 
 class Configurations {
 private:
-    CryptoWrapper crypto_wrapper;
-
     static unsigned char aes_key[AES_KEY_SIZE];
     static unsigned char aes_iv[AES_IV_SIZE];
     bool safe;
 
-    void configure_aes(std::map<std::string, std::string> &map);
-    void check_debug(std::map<std::string, std::string> &map);
-    void check_emulator(std::map<std::string, std::string> &map);
-    void check_adb(std::map<std::string, std::string> &map);
-    void check_secure_environment(std::map<std::string, std::string> &map);
+    void configure_aes();
+    void check_debug();
+    void check_emulator();
+    void check_adb();
+    void check_secure_environment();
 public:
-    Configurations(std::map<std::string, std::string> &map);
+    Configurations();
     unsigned char * get_initial_vector();
     unsigned char * get_key();
     bool is_safe_to_use();
