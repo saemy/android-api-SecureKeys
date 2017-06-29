@@ -9,6 +9,16 @@ android {
         targetSdkVersion project.targetApiLevel
         versionName libraryVersion
         applicationId "com.u.testapp"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++11 -fexceptions"
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "build/secure-keys/include/main/cpp/CMakeLists.txt"
+        }
     }
     buildTypes {
         debug {
@@ -34,6 +44,29 @@ android {
     }
 }
 
+task extractSecureKeysNativeFiles {
+    doLast {
+        configurations.all*.each {
+            def file = it.absoluteFile
+            if (file.absolutePath.contains("com.saantiaguilera.securekeys/core")) {
+                println "copying into ${project.file('.').absolutePath}/build/secure-keys"
+                println file
+                copy {
+                    from zipTree(file)
+                    into "build/"
+                    include "secure-keys/include/**"
+                }
+            }
+        }
+    }
+}
+build.dependsOn('extractSecureKeysNativeFiles')
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith('compile') || task.name.startsWith('assemble')) {
+        task.dependsOn('extractSecureKeysNativeFiles')
+    }
+}
+
 dependencies {
     compile support.appcompat
 
@@ -42,6 +75,6 @@ dependencies {
 //    annotationProcessor me.processor
 
     // For using the project ones:
-    compile project(path:':core')
+    compile "com.saantiaguilera.securekeys:core:TEST-1.0.1"
     annotationProcessor project(path:':processor')
 }

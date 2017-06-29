@@ -23,7 +23,6 @@ add_library(secure-keys
 			protocol.h)
 
 # find_library(log-lib log)
-
 # target_link_libraries(secure-keys ${log-lib})
 
 set(CMAKE_CXX_FLAGS "-fPIC")
