@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'saantiaguilera.securekeys'
 
 android {
     compileSdkVersion project.targetApiLevel.toInteger()
@@ -9,16 +10,6 @@ android {
         targetSdkVersion project.targetApiLevel
         versionName libraryVersion
         applicationId "com.u.testapp"
-        externalNativeBuild {
-            cmake {
-                cppFlags "-std=c++11 -fexceptions"
-            }
-        }
-    }
-    externalNativeBuild {
-        cmake {
-            path "build/secure-keys/include/main/cpp/CMakeLists.txt"
-        }
     }
     buildTypes {
         debug {
@@ -41,29 +32,6 @@ android {
             buildConfigField "String", "TESTING_VALUE_1", "\"5000\""
             buildConfigField "String", "TESTING_VALUE_2", "\"3.1415\""
         }
-    }
-}
-
-task extractSecureKeysNativeFiles {
-    doLast {
-        configurations.all*.each {
-            def file = it.absoluteFile
-            if (file.absolutePath.contains("com.saantiaguilera.securekeys/core")) {
-                println "copying into ${project.file('.').absolutePath}/build/secure-keys"
-                println file
-                copy {
-                    from zipTree(file)
-                    into "build/"
-                    include "secure-keys/include/**"
-                }
-            }
-        }
-    }
-}
-build.dependsOn('extractSecureKeysNativeFiles')
-tasks.whenTaskAdded { task ->
-    if (task.name.startsWith('compile') || task.name.startsWith('assemble')) {
-        task.dependsOn('extractSecureKeysNativeFiles')
     }
 }
 
