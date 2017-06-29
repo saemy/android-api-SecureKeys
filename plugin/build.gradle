@@ -1,0 +1,9 @@
+apply plugin: 'groovy'
+
+group 'com.saantiaguilera.securekeys.gradle'
+version 'TEST-1.0.0'
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+}

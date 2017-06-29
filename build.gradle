@@ -10,6 +10,8 @@ buildscript {
 
         classpath "com.saantiaguilera.gradle.publish.helper:core:TEST-3.0.0"
 
+        classpath "com.saantiaguilera.securekeys.gradle:plugin:TEST-1.0.0"
+
         classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3")
         classpath("com.github.dcendents:android-maven-gradle-plugin:1.5")
     }
@@ -44,7 +46,7 @@ publishGlobalConfigurations {
 
 apply from: 'dependencies.gradle'
 
-configure(subprojects.findAll { it.name != 'testapp' }) { subproject ->
+configure(subprojects.findAll { it.name != 'testapp' && it.name != 'plugin' }) { subproject ->
     def androidLibs = ['core']
     def javaLibs = ['annotation', 'processor']
 

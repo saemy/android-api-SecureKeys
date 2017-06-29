@@ -1,1 +1,1 @@
-include ':core', ':testapp', ':processor', ':annotation'
+include ':core', ':testapp', ':processor', ':annotation', ':plugin'
