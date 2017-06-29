@@ -1,16 +1,33 @@
 android {
-    defaultConfig {
-        externalNativeBuild {
-            cmake {
-                cppFlags "-std=c++11 -fexceptions"
-            }
-        }
-    }
+//    defaultConfig {
+//        externalNativeBuild {
+//            cmake {
+//                cppFlags "-std=c++11 -fexceptions"
+//            }
+//        }
+//    }
+//
+//    externalNativeBuild {
+//        cmake {
+//            path "src/main/cpp/CMakeLists.txt"
+//        }
+//    }
+}
 
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-        }
+def aarName = name
+
+task repackageReleaseAar(type: Zip) {
+    baseName = aarName + "-release"
+    extension = 'aar'
+    destinationDir = file('build/secure-keys/') //put resulting AAR file to upper level directory
+
+    from zipTree("build/outputs/aar/" + aarName + "-release.aar")
+    exclude('**/*.so') //do not include shared libraries into final AAR
+    from("src") {
+        include('main/cpp/**/*.h')
+        include('main/cpp/**/*.cpp')
+        include('main/cpp/CMakeLists.txt')
+        into('secure-keys/include')
     }
 }
 

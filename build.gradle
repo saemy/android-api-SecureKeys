@@ -3,11 +3,12 @@ apply plugin: 'com.saantiaguilera.gradle.publish.helper'
 buildscript {
     repositories {
         jcenter()
+        mavenLocal()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.2'
 
-        classpath "com.saantiaguilera.gradle.publish.helper:core:2.0.2"
+        classpath "com.saantiaguilera.gradle.publish.helper:core:TEST-3.0.0"
 
         classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3")
         classpath("com.github.dcendents:android-maven-gradle-plugin:1.5")
@@ -18,6 +19,9 @@ allprojects {
     repositories {
         jcenter()
         maven {
+            url "https://dl.bintray.com/saantiaguilera/maven-tests"
+        }
+        maven {
             url "https://maven.google.com"
         }
     }
@@ -27,13 +31,15 @@ publishGlobalConfigurations {
     groupId = project.groupId
     versionName = libraryVersion
 
-    url = "https://github.com/saantiaguilera/android-api-SecureKeys"
+    githubUrl = "https://github.com/saantiaguilera/android-api-SecureKeys"
 
-    bintrayUser = System.getenv('BINTRAY_USER')
-    bintrayApiKey = System.getenv('BINTRAY_KEY')
+    bintrayRepository = 'maven-tests'
+
+    bintrayUser = System.getenv('BINTRAY_SANTI_USER')
+    bintrayApiKey = System.getenv('BINTRAY_SANTI_KEY')
 
     licenseUrl = "http://www.opensource.org/licenses/BSD-3-Clause"
-    licenseName = "The 3-Clause BSD License"
+    licenseName = "BSD"
 }
 
 apply from: 'dependencies.gradle'
