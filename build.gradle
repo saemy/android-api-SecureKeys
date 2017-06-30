@@ -3,14 +3,13 @@ apply plugin: 'com.saantiaguilera.gradle.publish.helper'
 buildscript {
     repositories {
         jcenter()
-        mavenLocal()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$buildGradlePluginVersion"
 
         classpath "com.saantiaguilera.gradle.publish.helper:core:$publishHelperPluginVersion"
 
-        classpath "com.saantiaguilera.securekeys.gradle:plugin:TEST-1.0.2"
+        classpath "com.saantiaguilera.securekeys.gradle:plugin:$libraryDynamicVersion"
 
         classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayGradlePluginVersion")
         classpath("com.github.dcendents:android-maven-gradle-plugin:$mavenGradlePluginVersion")
