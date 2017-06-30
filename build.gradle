@@ -3,13 +3,19 @@ apply plugin: 'com.saantiaguilera.gradle.publish.helper'
 buildscript {
     repositories {
         jcenter()
+        // TODO
+        // Currently this unreleased version is using as dependencies
+        // Snapshots of the last build
+        maven {
+            url "https://dl.bintray.com/saantiaguilera/maven-tests"
+        }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$buildGradlePluginVersion"
 
         classpath "com.saantiaguilera.gradle.publish.helper:core:$publishHelperPluginVersion"
 
-        classpath "com.saantiaguilera.securekeys.gradle:plugin:$libraryDynamicVersion"
+        classpath "com.saantiaguilera.securekeys:plugin:$libraryDynamicVersion"
 
         classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayGradlePluginVersion")
         classpath("com.github.dcendents:android-maven-gradle-plugin:$mavenGradlePluginVersion")
