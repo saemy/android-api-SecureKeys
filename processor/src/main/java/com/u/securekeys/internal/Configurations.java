@@ -1,9 +1,4 @@
-package com.u.securekeys;
-
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
+package com.u.securekeys.internal;
 
 public class Configurations {
 
@@ -14,7 +9,6 @@ public class Configurations {
 
     private byte aesKey[];
     private byte aesVector[];
-
 
     public Configurations() {
     }
@@ -56,10 +50,10 @@ public class Configurations {
     }
 
     public void writeTo(NativeHeaderBuilder builder) {
-        builder.addDefine("SECUREKEYS_HALT_IF_DEBUGGABLE", haltDebuggable);
-        builder.addDefine("SECUREKEYS_HALT_IF_EMULATOR", haltEmulator);
-        builder.addDefine("SECUREKEYS_HALT_IF_ADB_ON", haltAdbOn);
-        builder.addDefine("SECUREKEYS_HALT_IF_PHONE_NOT_SECURE", haltNotSecure);
+        builder.addDefine("SECUREKEYS_HALT_IF_DEBUGGABLE", String.valueOf(haltDebuggable));
+        builder.addDefine("SECUREKEYS_HALT_IF_EMULATOR", String.valueOf(haltEmulator));
+        builder.addDefine("SECUREKEYS_HALT_IF_ADB_ON", String.valueOf(haltAdbOn));
+        builder.addDefine("SECUREKEYS_HALT_IF_PHONE_NOT_SECURE", String.valueOf(haltNotSecure));
 
         builder.addDefine("SECUREKEYS_AES_KEY", byteArrayToString(aesKey));
         builder.addDefine("SECUREKEYS_AES_INITIAL_VECTOR", byteArrayToString(aesVector));
