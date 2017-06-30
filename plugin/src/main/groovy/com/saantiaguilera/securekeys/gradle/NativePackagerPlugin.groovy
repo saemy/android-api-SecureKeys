@@ -21,6 +21,8 @@ public class NativePackagerPlugin implements Plugin<Project> {
     ]
 
     private static final String SECUREKEYS_PACKAGE_NAME = 'com.saantiaguilera.securekeys/core'
+    private static final String SECUREKEYS_PACKAGE_LOCAL_NAME = 'SecureKeys/testapp/libs/core'
+
     private static final String AAR_UNCOMPRESSED_ROOT_DESTINATION = 'build'
     private static final String AAR_GENERATED_FOLDER = 'secure-keys/include'
 
@@ -100,7 +102,10 @@ public class NativePackagerPlugin implements Plugin<Project> {
             doLast {
                 project.configurations.all*.each {
                     def file = it.absoluteFile
-                    if (file.absolutePath.contains(SECUREKEYS_PACKAGE_NAME)) {
+                    // Check if the file is of the package name. 
+                    // Also we check if its our local environment since we dont add it via gradle
+                    if (file.absolutePath.contains(SECUREKEYS_PACKAGE_NAME) ||
+                            file.absolutePath.contains(SECUREKEYS_PACKAGE_LOCAL_NAME)) {
                         project.copy {
                             from project.zipTree(file)
                             into AAR_UNCOMPRESSED_ROOT_DESTINATION
