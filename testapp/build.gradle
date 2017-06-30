@@ -35,16 +35,41 @@ android {
     }
 }
 
+task copyCoreAar() {
+    fileTree("libs/").filter { it.isFile() }.files.each { file ->
+        file.delete()
+    }
+
+    def aarFileRelease = project.rootProject.subprojects.find { it.name == 'core' }.file('build/outputs/aar/core-release.aar')
+
+    if (aarFileRelease.exists()) {
+        project.copy {
+            from aarFileRelease.absolutePath
+            into 'libs/'
+        }
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 dependencies {
     compile support.appcompat
 
     // For using the published ones:
-//    compile me.core
-//    annotationProcessor me.processor
+    // compile me.core
+    // annotationProcessor me.processor
 
-//    compile project(path: ":core")
-
-    // For using the project ones:
-    compile "com.saantiaguilera.securekeys:core:TEST-1.0.2"
-    annotationProcessor project(path:':processor')
+    if (project.file('libs/core-release.aar').exists()) {
+        // Using latest test version, remember to 
+        compile (name: 'core-release', ext: 'aar')
+        compile project(path: ':annotation')
+        // For using the project ones:
+        annotationProcessor project(path:':processor')
+    } else {
+        println "Please run first core:assembleRelease before using the testapp"
+    }
 }
