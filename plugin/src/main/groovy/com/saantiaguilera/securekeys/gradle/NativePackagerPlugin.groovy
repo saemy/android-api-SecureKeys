@@ -9,8 +9,10 @@ import org.gradle.api.tasks.bundling.Zip
  */
 public class NativePackagerPlugin implements Plugin<Project> {
 
+    private static final String AAR = 'aar'
+
     private static final String TASK_EXTRACT_NATIVE_FILES = 'extractSecureKeysNativeFiles'
-    private static final String TASK_PACKAGE_NATIVE_FILES = 'packageReleaseAar'
+    private static final String TASK_PACKAGE_NATIVE_FILES = 'packageNativeFilesToAar'
 
     private static final List<String> TASK_DEPENDANTS = [
             'generate',
@@ -29,10 +31,16 @@ public class NativePackagerPlugin implements Plugin<Project> {
     private static final String FILE_BLOB_ALL = '**'
     private static final String FILE_BLOB_EXTERNAL_HEADERS = 'main/cpp/**/extern_*.h'
 
+    private static final String CPP_FLAGS = "-std=c++11 -fexceptions"
+
     @Override
     void apply(Project project) {
         if (project.properties.nativeAarRepackage) {
-            addNativeAarPackageTask(project)
+            // Iterate the variants and add a task for repackaging the aar.
+            // This should be use be me only.
+            project.android.libraryVariants.all {
+                addNativeAarPackageTask(project, it.name)
+            }
         } else {
             // Add tasks for retrieveing native files from aar
             addNativeAarRetrievalTasks(project)
@@ -41,14 +49,15 @@ public class NativePackagerPlugin implements Plugin<Project> {
         }
     }
 
-    def addNativeAarPackageTask(Project project) {
-        def aarName = project.name
-        def task = project.tasks.create TASK_PACKAGE_NATIVE_FILES, Zip
-        task.baseName = aarName + "-release"
-        task.extension = 'aar'
-        task.destinationDir = project.file('build/secure-keys/') // Where to save the new aar.
+    def addNativeAarPackageTask(Project project, def variant) {
+        def path = 'build/outputs/aar/'
+        def newExt = "${AAR}.x"
+        def task = project.tasks.create "${TASK_PACKAGE_NATIVE_FILES}${variant.capitalize()}", Zip
+        task.baseName = "${project.name}-${variant}"
+        task.extension = newExt
+        task.destinationDir = project.file(path) // Where to save the new aar.
 
-        task.from project.zipTree("build/outputs/aar/" + aarName + "-release.aar")
+        task.from project.zipTree("${path}${project.name}-${variant}.${AAR}")
         task.exclude(FILE_BLOB_SO) // Do not include shared libraries into final AAR
         task.exclude(FILE_BLOB_EXTERNAL_HEADERS) // Do not include extern_**.h classes to the final AAR
         task.from("src") {
@@ -57,17 +66,31 @@ public class NativePackagerPlugin implements Plugin<Project> {
             include(FILE_CMAKE)
             into(AAR_GENERATED_FOLDER)
         }
+        task.outputs.upToDateWhen { return false }
+
+        project.tasks["assemble${variant.capitalize()}"].finalizedBy task
+        
+        task.doLast {
+            // Zip tasks dont support overwrite, so we "support it"
+            def oldFile = "${path}${project.name}-${variant}.${AAR}"
+            def newFile = "${path}${project.name}-${variant}.${newExt}"
+
+            project.file(oldFile).delete()
+            project.file(newFile).renameTo(project.file(oldFile))
+        }
     }
 
     def addNativeBuildingSupport(Project project) {
-        project.android.defaultConfig.externalNativeBuild {
-            cmake {
-                cppFlags "-std=c++11 -fexceptions"
+        if (!project.properties.dontCompileNdk) {
+            project.android.defaultConfig.externalNativeBuild {
+                cmake {
+                    cppFlags CPP_FLAGS
+                }
             }
-        }
-        project.android.externalNativeBuild {
-            cmake {
-                path "${AAR_UNCOMPRESSED_ROOT_DESTINATION}/${AAR_GENERATED_FOLDER}/${FILE_CMAKE}"
+            project.android.externalNativeBuild {
+                cmake {
+                    path "${AAR_UNCOMPRESSED_ROOT_DESTINATION}/${AAR_GENERATED_FOLDER}/${FILE_CMAKE}"
+                }
             }
         }
     }
