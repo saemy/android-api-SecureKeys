@@ -6,20 +6,26 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.2'
+        classpath "com.android.tools.build:gradle:$buildGradlePluginVersion"
 
-        classpath "com.saantiaguilera.gradle.publish.helper:core:3.0.0"
+        classpath "com.saantiaguilera.gradle.publish.helper:core:$publishHelperPluginVersion"
 
         classpath "com.saantiaguilera.securekeys.gradle:plugin:TEST-1.0.2"
 
-        classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3")
-        classpath("com.github.dcendents:android-maven-gradle-plugin:1.5")
+        classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayGradlePluginVersion")
+        classpath("com.github.dcendents:android-maven-gradle-plugin:$mavenGradlePluginVersion")
     }
 }
 
 allprojects {
     repositories {
         jcenter()
+        // TODO
+        // Currently this unreleased version is using as dependencies
+        // Snapshots of the last build
+        maven {
+            url "https://dl.bintray.com/saantiaguilera/maven-tests"
+        }
         maven {
             url "https://maven.google.com"
         }
@@ -30,9 +36,11 @@ publishGlobalConfigurations {
     groupId = project.groupId
     versionName = libraryVersion
 
-    githubUrl = "https://github.com/saantiaguilera/android-api-SecureKeys"
+    githubUrl = "saantiaguilera/android-api-SecureKeys"
 
-    bintrayRepository = 'maven'
+    // TODO Before releasing both variables should be rollbacked
+    bintrayRepository = 'maven-tests'
+    override = true
 
     bintrayUser = System.getenv('BINTRAY_SANTI_USER')
     bintrayApiKey = System.getenv('BINTRAY_SANTI_KEY')
