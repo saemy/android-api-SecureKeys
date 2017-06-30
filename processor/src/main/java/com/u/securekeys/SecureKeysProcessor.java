@@ -36,33 +36,41 @@ public class SecureKeysProcessor extends AbstractProcessor {
 
     private Encoder encoder;
 
+    private List<SecureKey> annotations;
+
     @Override
     public boolean process(final Set<? extends TypeElement> set, final RoundEnvironment roundEnvironment) {
         headerBuilder = new NativeHeaderBuilder(FILE_NAME);
         headerBuilder.addImport("map");
         headerBuilder.addImport("string");
 
-        List<SecureKey> annotations = flattenElements(
+        if (annotations == null) {
+            annotations = new ArrayList<>();
+        }
+
+        annotations.addAll(flattenElements(
             roundEnvironment.getElementsAnnotatedWith(SecureKey.class),
             roundEnvironment.getElementsAnnotatedWith(SecureKeys.class)
-        );
+        ));
 
-        configure(roundEnvironment);
-        addConstants(annotations);
+        if (roundEnvironment.processingOver()) {
+            configure(roundEnvironment);
+            addConstants(annotations);
 
-        try {
-            // Look for the directory we should drop the file into.
-            List<File> files = findNativeFiles(new File("."));
-            if (!files.isEmpty()) {
-                String path = files.get(0).getAbsolutePath();
-                headerBuilder.writeTo(new FileWriter(path + File.separatorChar + FILE_FULL_NAME));
-            } else {
+            try {
+                // Look for the directory we should drop the file into.
+                List<File> files = findNativeFiles(new File("."));
+                if (!files.isEmpty()) {
+                    String path = files.get(0).getAbsolutePath();
+                    headerBuilder.writeTo(new FileWriter(path + File.separatorChar + FILE_FULL_NAME));
+                } else {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                            "No native files found for generating the full shared object. Maybe the plugin is missing?");
+                }
+            } catch (IOException e) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                    "No native files found for generating the full shared object. Maybe the plugin is missing?");
+                        "Exception ocurred writing file: " + e.getMessage());
             }
-        } catch (IOException e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                "Exception ocurred writing file: " + e.getMessage());
         }
 
         return true;
@@ -124,7 +132,7 @@ public class SecureKeysProcessor extends AbstractProcessor {
 
                 defineValue += ("    " + mapVariable + "[\"" + key + "\"] = \"" + value + "\";");
                 if (i != annotations.size() - 1) {
-                    defineValue += "\\\n";
+                    defineValue += " \\\n";
                 }
             }
         }
