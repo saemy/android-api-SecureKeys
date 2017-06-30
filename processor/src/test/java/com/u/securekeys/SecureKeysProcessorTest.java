@@ -26,34 +26,6 @@ public class SecureKeysProcessorTest {
         Assert.assertTrue(stripClasses(compilation.generatedFiles()).isEmpty());
     }
 
-    @Test
-    public void test_SingleSecureKeyProcessedOk() {
-        Compilation compilation = javac()
-            .withProcessors(new SecureKeysProcessor())
-            .compile(JavaFileObjects.forSourceString("SingleKeyClass", Mocks.MOCK_SECURE_KEY));
-
-        validate(compilation);
-        Assert.assertEquals(1, stripClasses(compilation.generatedFiles()).size());
-
-        assertThat(compilation)
-            .generatedSourceFile("android/util/SCCache")
-            .hasSourceEquivalentTo(JavaFileObjects.forSourceString("SCCache", Mocks.MOCK_SECURE_KEY_GEN_FILE));
-    }
-
-    @Test
-    public void test_MultipleSecureKeyProcessedOk() {
-        Compilation compilation = javac()
-            .withProcessors(new SecureKeysProcessor())
-            .compile(JavaFileObjects.forSourceString("MultipleKeyClass", Mocks.MOCK_SECURE_KEY_MULTIPLE));
-
-        validate(compilation);
-        Assert.assertEquals(1, stripClasses(compilation.generatedFiles()).size());
-
-        assertThat(compilation)
-            .generatedSourceFile("android/util/SCCache")
-            .hasSourceEquivalentTo(JavaFileObjects.forSourceString("SCCache", Mocks.MOCK_SECURE_KEY_MULTIPLE_GEN_FILE));
-    }
-
     void validate(Compilation compilation) {
         // Check that it succeded
         assertThat(compilation).succeeded();

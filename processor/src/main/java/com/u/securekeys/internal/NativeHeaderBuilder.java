@@ -28,28 +28,41 @@ public class NativeHeaderBuilder {
     }
 
     public void writeTo(Writer writer) throws IOException {
-        writer.append("// Created by SecureKeys Annotation Processor - Santiago Aguilera\n\n");
-        writer.append("#ifndef SECUREKEYS_EXTERN_" + fileName.toUpperCase() + "_H\n");
-        writer.append("#define SECUREKEYS_EXTERN_" + fileName.toUpperCase() + "_H\n");
+        List<String> lines = flatFile();
 
-        writer.append("\n");
+        for (String line : lines) {
+            writer.append(line);
+        }
+
+        if (!lines.isEmpty()) {
+            writer.flush();
+            writer.close();
+        }
+    }
+
+    public List<String> flatFile() {
+        List<String> lines =  new ArrayList<>();
+        lines.add("// Created by SecureKeys Annotation Processor - Santiago Aguilera\n\n");
+        lines.add("#ifndef SECUREKEYS_EXTERN_" + fileName.toUpperCase() + "_H\n");
+        lines.add("#define SECUREKEYS_EXTERN_" + fileName.toUpperCase() + "_H\n");
+
+        lines.add("\n");
 
         for (String line : imports) {
-            writer.append(line);
+            lines.add(line);
         }
 
-        writer.append("\n");
+        lines.add("\n");
 
         for (String line : defines) {
-            writer.append(line);
+            lines.add(line);
         }
 
-        writer.append("\n");
+        lines.add("\n");
 
-        writer.append("#endif //SECUREKEYS_EXTERN_" + fileName.toUpperCase() + "_H\n");
+        lines.add("#endif //SECUREKEYS_EXTERN_" + fileName.toUpperCase() + "_H\n");
 
-        writer.flush();
-        writer.close();
+        return lines;
     }
 
 }

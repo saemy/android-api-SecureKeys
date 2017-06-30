@@ -1,5 +1,7 @@
 package com.u.securekeys.internal;
 
+import java.lang.NullPointerException;
+
 public class Configurations {
 
     private boolean haltDebuggable;
@@ -50,6 +52,10 @@ public class Configurations {
     }
 
     public void writeTo(NativeHeaderBuilder builder) {
+        if (aesKey == null || aesVector == null) {
+            throw new NullPointerException("Missing aesKey/Vector in configurations. Please set them");
+        }
+
         builder.addDefine("SECUREKEYS_HALT_IF_DEBUGGABLE", String.valueOf(haltDebuggable));
         builder.addDefine("SECUREKEYS_HALT_IF_EMULATOR", String.valueOf(haltEmulator));
         builder.addDefine("SECUREKEYS_HALT_IF_ADB_ON", String.valueOf(haltAdbOn));

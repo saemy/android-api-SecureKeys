@@ -35,6 +35,11 @@ android {
     }
 }
 
+/**
+ * This is so that we can use the :core module locally
+ * Since gradle when compiling local projects gets the
+ * sources from the bundle on his own and not the aar :(
+ */
 task copyCoreAar() {
     fileTree("libs/").filter { it.isFile() }.files.each { file ->
         file.delete()
@@ -64,10 +69,8 @@ dependencies {
     // annotationProcessor me.processor
 
     if (project.file('libs/core-release.aar').exists()) {
-        // Using latest test version, remember to 
         compile (name: 'core-release', ext: 'aar')
         compile project(path: ':annotation')
-        // For using the project ones:
         annotationProcessor project(path:':processor')
     } else {
         println "Please run first core:assembleRelease before using the testapp"
