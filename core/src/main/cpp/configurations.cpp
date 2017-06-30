@@ -59,7 +59,8 @@ bool check_cmdline_has_debug() {
  * Initialize the configurations. For more information see the class "SecureConfigurations" in the "annotation"
  * module
  */
-Configurations::Configurations() : safe(true) {
+Configurations::Configurations(JNIEnv *env, jobject &object_context) : safe(true) {
+    check_installer(env, object_context);
     check_debug();
     check_adb();
     check_emulator();
@@ -68,6 +69,48 @@ Configurations::Configurations() : safe(true) {
     if (!is_safe_to_use()) {
         memset(aes_iv, 0, sizeof(aes_iv));
         memset(aes_key, 0, sizeof(aes_key));
+    }
+}
+
+void Configurations::check_installer(JNIEnv *env, jobject &object_context) {
+    std::string installers[] = SECUREKEYS_INSTALLERS;
+
+    if (installers.length > 0) {
+        // Find jclass we will interact with
+        jclass class_context = env->FindClass("android/content/Context");
+        jclass class_package_manager = env->FindClass("android/content/pm/PackageManager");
+
+        // Get the package manager jobject
+        jmethodID method_get_package_manager = env->GetMethodID(class_context, "getPackageManager", "()Landroid/content/pm/PackageManager;");
+        jobject object_package_manager = env->CallObjectMethod(object_context, method_get_package_manager);
+
+        // Get the methods for getting my package name and the installer package name
+        jmethodID method_get_installer_package_name = env->GetMethodID(class_package_manager, "getInstallerPackageName", "(Ljava/lang/String;)Ljava/lang/String;");
+        jmethodID method_get_package_name = env->GetMethodID(class_context, "getPackageName", "()Ljava/lang/String;");
+
+        // Obtain my package name
+        jobject object_package_name = env->CallObjectMethod(object_context, method_get_package_name);
+        // Obtain the installer package name
+        jobject object_installer_package_name = (jstring) env->CallObjectMethod(object_package_manager, method_get_installer_package_name, object_package_name);
+
+        // Delete used local references
+        env->DeleteLocalRef(object_package_manager);
+        env->DeleteLocalRef(object_package_name);
+
+        const char *raw_installer_package_name = env->GetStringUTFChars(object_installer_package_name, 0);
+        std::string installer_package_name(raw_installer_package_name);
+
+        bool aux_safe = false;
+        for (const std::string &installer : SECUREKEYS_INSTALLERS) {
+            if (installer_package_name.size() >= installer.size() && installer_package_name.substr(0, installer.size()) == installer) {
+                aux_safe = true;
+            }
+        }
+        safe = aux_safe;
+
+        // Release string and delete reference
+        env->ReleaseStringUTFChars((jstring) object_installer_package_name);
+        env->DeleteLocalRef(object_installer_package_name);
     }
 }
 

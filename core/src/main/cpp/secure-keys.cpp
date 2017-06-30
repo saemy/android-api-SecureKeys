@@ -15,6 +15,7 @@ CryptoWrapper crypto_wrapper;
 extern "C" {
     JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved);
     JNIEXPORT jstring JNICALL Java_com_u_securekeys_SecureEnvironment__1getString(JNIEnv *env, jclass instance, jstring key);
+    JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1init(JNIEnv *env, jclass instance, jobject context_object);
 };
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -22,8 +23,11 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
     }
+    return JNI_VERSION_1_6;
+}
 
-    Configurations configs;
+JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1init(JNIEnv *env, jclass instance, jobject object_context) {
+    Configurations configs(env, object_context);
 
     if (configs.is_safe_to_use()) {
         SECUREKEYS_LOAD_MAP(_map)
@@ -34,8 +38,6 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
         // Remove everything from memory, since its not a safe environment
         _map.clear();
     }
-
-    return JNI_VERSION_1_6;
 }
 
 JNIEXPORT jstring JNICALL Java_com_u_securekeys_SecureEnvironment__1getString

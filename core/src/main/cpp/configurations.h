@@ -5,6 +5,7 @@
 #ifndef SECUREKEYS_CONFIGURATIONS_H
 #define SECUREKEYS_CONFIGURATIONS_H
 
+#include <jni.h>
 #include <map>
 #include <string>
 #include "crypto/crypto_wrapper.h"
@@ -20,8 +21,9 @@ private:
     void check_emulator();
     void check_adb();
     void check_secure_environment();
+    void check_installer(JNIEnv *env, jobject &object_context);
 public:
-    Configurations();
+    Configurations(JNIEnv *env, jobject &object_context);
     unsigned char * get_initial_vector();
     unsigned char * get_key();
     bool is_safe_to_use();
