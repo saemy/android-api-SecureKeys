@@ -37,25 +37,38 @@ public class SecureKeysProcessor extends AbstractProcessor {
     private Encoder encoder;
 
     private List<SecureKey> annotations;
+    private List<SecureConfigurations> configurations;
 
     @Override
     public boolean process(final Set<? extends TypeElement> set, final RoundEnvironment roundEnvironment) {
-        headerBuilder = new NativeHeaderBuilder(FILE_NAME);
-        headerBuilder.addImport("map");
-        headerBuilder.addImport("string");
-
+        // Initialize variables if they are null
         if (annotations == null) {
             annotations = new ArrayList<>();
         }
 
+        if (configurations == null) {
+            configurations = new ArrayList<>();
+        }
+
+        // Since the apt might make more than one pass, add them all without processing
         annotations.addAll(flattenElements(
             roundEnvironment.getElementsAnnotatedWith(SecureKey.class),
             roundEnvironment.getElementsAnnotatedWith(SecureKeys.class)
         ));
+        
+        Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(SecureConfigurations.class);
+        for (Element element : elements) {
+            configurations.add(element.getAnnotation(SecureConfigurations.class));
+        }
 
+        // Check if this will be the last processing pass
         if (roundEnvironment.processingOver()) {
-            configure(roundEnvironment);
-            addConstants(annotations);
+            headerBuilder = new NativeHeaderBuilder(FILE_NAME);
+            headerBuilder.addImport("map");
+            headerBuilder.addImport("string");
+
+            configure();
+            addConstants();
 
             try {
                 // Look for the directory we should drop the file into.
@@ -117,7 +130,7 @@ public class SecureKeysProcessor extends AbstractProcessor {
         return result;
     }
 
-    private void addConstants(List<SecureKey> annotations) {
+    private void addConstants() {
         String mapVariable = "_map";
         String defineValue;
         if (annotations.isEmpty()) {
@@ -140,14 +153,7 @@ public class SecureKeysProcessor extends AbstractProcessor {
         headerBuilder.addDefine("SECUREKEYS_LOAD_MAP(" + mapVariable + ")", defineValue);
     }
 
-    private void configure(final RoundEnvironment roundEnvironment) {
-        Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(SecureConfigurations.class);
-        List<SecureConfigurations> configurations = new ArrayList<>();
-
-        for (Element element : elements) {
-            configurations.add(element.getAnnotation(SecureConfigurations.class));
-        }
-
+    private void configure() {
         if (configurations.size() > 1) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "More than one SecureConfigurations found. Only one should be used");
             throw new IllegalStateException("More than one SecureConfigurations found. Only one should be used.");
