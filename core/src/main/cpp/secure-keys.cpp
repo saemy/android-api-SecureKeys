@@ -10,6 +10,7 @@
 #define _default_response ""
 
 std::map<std::string , std::string> _map;
+bool initialzed;
 CryptoWrapper crypto_wrapper;
 
 extern "C" {
@@ -27,6 +28,11 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 }
 
 JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1init(JNIEnv *env, jclass instance, jobject object_context) {
+    if (initialized) {
+        _map.clear();
+        throw "Already initialized, this shouldnt be happening so the constants have been removed"
+    }
+
     Configurations configs(env, object_context);
 
     if (configs.is_safe_to_use()) {
@@ -38,6 +44,8 @@ JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1init(JNIEnv *en
         // Remove everything from memory, since its not a safe environment
         _map.clear();
     }
+
+    initialized = true;
 }
 
 JNIEXPORT jstring JNICALL Java_com_u_securekeys_SecureEnvironment__1getString
