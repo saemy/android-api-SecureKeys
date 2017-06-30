@@ -181,17 +181,12 @@ public class SecureKeysProcessor extends AbstractProcessor {
                     String seedString = Encoder.hash(String.valueOf(System.nanoTime()));
                     byte[] seed = seedString.getBytes(Charset.forName("UTF-8"));
 
-                    // Create key from end in reverse
+                    // Create iv from start and key from end in reverse
                     for (int i = 0 ; i < 32 ; i++) {
+                        if (i < 16) {
+                            iv[i] = seed[i];
+                        }
                         key[i] = seed[seed.length - i - 1];
-                    }
-
-                    seedString = Encoder.hash(String.valueOf(System.nanoTime()));
-                    seed = seedString.getBytes(Charset.forName("UTF-8"));
-
-                    // Create iv from end in reverse
-                    for (int i = 0 ; i < 16 ; i++) {
-                        iv[i] = seed[seed.length - i - 1];
                     }
 
                     encoder = new Encoder(iv, key);
