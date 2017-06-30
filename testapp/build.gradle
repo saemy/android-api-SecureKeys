@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'saantiaguilera.securekeys'
+apply plugin: 'saantiaguilera.securekeys'
 
 android {
     compileSdkVersion project.targetApiLevel.toInteger()
@@ -42,9 +42,9 @@ dependencies {
 //    compile me.core
 //    annotationProcessor me.processor
 
-    compile project(path: ":core")
+//    compile project(path: ":core")
 
     // For using the project ones:
-//    compile "com.saantiaguilera.securekeys:core:TEST-1.0.1"
-//    annotationProcessor project(path:':processor')
+    compile "com.saantiaguilera.securekeys:core:TEST-1.0.2"
+    annotationProcessor project(path:':processor')
 }
