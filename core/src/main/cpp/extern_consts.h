@@ -8,6 +8,8 @@
 #include <map>
 #include <string>
 
+// THIS IS A TEST CLASS, THIS WONT BE SHIPPED WITH THE AAR
+
 #define SECUREKEYS_LOAD_MAP(_map) \
     _map["fdce8e4a65b70d186bd77cba2e0c580dcf1c6497da9f1b70eed849497e1f8ba2"] = "jUvAlWYtbJJXOB5PWy1NMsgtAjOcBYdZpSgWcvBjnfwXtmyCsMFnPHeM4CrLdYPO2xmk2IAnOGhlsVn55eV6wA=="; \
     _map["ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"] = "dtqf2xd4THshib3s3WONaw=="; \
@@ -22,7 +24,7 @@
 
 #define SECUREKEYS_HALT_IF_DEBUGGABLE false
 #define SECUREKEYS_HALT_IF_EMULATOR false
-#define SECUREKEYS_HALT_IF_ADB_ON true
+#define SECUREKEYS_HALT_IF_ADB_ON false
 #define SECUREKEYS_HALT_IF_PHONE_NOT_SECURE false
 
 #endif //SECUREKEYS_EXTERN_CONSTS_H
