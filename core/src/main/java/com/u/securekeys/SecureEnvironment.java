@@ -1,5 +1,6 @@
 package com.u.securekeys;
 
+import android.content.Context;
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 
@@ -21,6 +22,10 @@ public final class SecureEnvironment {
 
     private SecureEnvironment() throws IllegalAccessException {
         throw new IllegalAccessException("This object cant be instantiated");
+    }
+
+    public static void initialize(@NonNull Context context) {
+        _init(context.getApplicationContext());
     }
 
     public static @NonNull String getString(@NonNull String key) {
@@ -53,5 +58,7 @@ public final class SecureEnvironment {
 
     @Keep
     private static native String _getString(String key);
+    @Keep
+    private static native void _init(Context context);
 
 }
