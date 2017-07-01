@@ -10,146 +10,35 @@ SecureKeys can be included in any Android application.
 
 SecureKeys supports Android 2.3 (Gingerbread / ApiLevel 9) and later.
 
-### Description
-
-This library uses an annotationProcessor to store the constants in a new file (where the constants are encrypted), and via JNI it will later retrieve them decoding them inside the `.so` file.
-
-This way the attackers cant know the encoding system (because its inside the annotation processor), neither the decoding. 
-
-**Note:** They can still "find" the class with the crypted constants or do a heapdump of the map inside the `.so` file. But since its encrypted they will have a (way too much) harder time figuring the constants out.
-
-### Size
-
-- _Aar_: Neglegible (1 class of 7 methods)
-- _Native libraries_: 88kb the `.so` for each ABI (If no abi split, around 500kb)
-
-### Relevant notes
-
-- The annotations used for the processor are removed in compile time, so they wont be shipped to the apk :)
-- The generated class by the apt will be shipped inside your apk, but all the constants will be already encrypted. (attacker could still do a heapdump to know the encrypted constants or read that file)
-- Current encryption system is AES (CBC + Padding5) + Base64. AES key and vector are private and local to the repository (planning to make them customizable)
+SecureKeys needs the developer to have NDK installed
 
 ### Usage
 
-#### Adding it to your project
-
-Add in your `build.gradle`:
-
-```gradle
-dependencies {
-    compile "com.saantiaguilera.securekeys:core:<latest_version>"
-    annotationProcessor "com.saantiaguilera.securekeys:processor:<latest_version>"
-}
-```
-
-#### Getting started
-
-Annotate secure stuff wherever you like as:
-
-```Java
-@SecureKeys({
-    @SecureKey(key = "client_secret", value = "my_client_secret..."),
-    @SecureKey(key = "another_one_here", value = "...")
-})
-class MyClass {
-  
-  @SecureKey(key = "or_here_a_single_one", value = "...")
-  public void myMethod() {}
-  
-}
-```
-This annotations wont be shipped with the apk, so fear not my friend :)
-
-Possible places for annotating are:
-- Classes
-- Constructors
-- Fields
-- Methods
-
-Thats all. Whenever you plan on using them simply call one of:
-```Java
-SecureEnvironment.getString("client_secret");
-SecureEnvironment.getLong("crash_tracking_system_user_id");
-SecureEnvironment.getDouble("time_for_destroying_the_world");
-```
-
-### Configuring
-
-**For the next version, this isnt deployed yet**
-
-If you want to set yout custom encryption values or restrict the library boundaries, you can provide a `@SecureConfigurations` annotation with your own customizations. Please note that only one annotation should be present.
-
-```Java
-@SecureConfigurations(
-    aesKey = { /* 32 byte array length key */ },
-    aesInitialVector = { /* 16 byte array length iv */ },
-    useAesRandomly = false, /* Generates random key/iv for each build. This overwrites custom keys/ivs */
-    blockIfDebugging = false, /* Library shuts down itself if detects a phone in debug */
-    blockIfADB = false, /* Library shuts down itself if ADB is detected */
-    blockIfEmulator = false, /* Library shuts down itself if phone is an emulator */
-    blockIfPhoneNotSecure = false /* ... if phone is rooted or alike */
-)
-public class MainApplication extends Application {
-    // ... 
-}    
-```
-
-When the library gets blocked, it will return empty strings no matter the key used. By no mean it will crash or output stacktraces/messages the attackers can benefit from.
-
-### Code generation
-
-Generated code for this annotation:
-```Java
-@SecureKey(key = "client-secret", value = "aD98E2GEk23TReYds9Zs9zdSdDBi23EAsdq29fXkpsDwp0W+h")
-```
-Will look like this:
-```Java
-   ...
-   L1
-    LINENUMBER 8 L1
-    ALOAD 0
-    // This string is "client-secret"
-    LDC "fdce8e4a65b70d186bd77cba2e0c580dcf1c6497da9f1b70eed849497e1f8ba2"
-    // This string is the value of "client-secret"
-    LDC "jUvAlWYtbJJXOB5PWy1NMsgtAjOcBYdZpSgWcvBjnfwXtmyCsMFnPHeM4CrLdYPO2xmk2IAnOGhlsVn55eV6wA=="
-    INVOKEVIRTUAL java/util/HashMap.put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-    POP
-   L2
-   ...
-```
+For usage, information, installation, etc. Please refer to the [wiki](https://github.com/saantiaguilera/android-api-SecureKeys/wiki)
 
 ### Proguard
 
 Currently the library supports transitively Proguard, so just by adding it you should be safe :)
 
-### Benchmarks
-
-Benchmark was ran on a Samsung Fame Lite (pretty old phone):
- * Android 4.1.2
- * CPU 1Ghz Single-Core ARM Cortex-A9
- * 512MB RAM
- * ISA ARMv7
- 
-There were 5000 different keys encoded, and was tested 100 times the retrieval of a key of various lengths. Which key doesnt matter, since lookup is O(1):
-
-**Time to retrieve a key of length 1** (ms): 2
-
-**Time to retrieve a key of length 10** (ms): 2
-
-**Time to retrieve a key of length 50** (ms): 2
-
-**Time to retrieve a key of length 5000** (ms): 4
-
 ### Contributing
 
-Fork and submit a PR!
+Please feel free to fork and open PRs!
 
-Modules:
-- annotation: Provides annotations that are used by the processor
-- core: The interaction of the user. Decrypts are done using C++, a java bridge is used for asking them
-- processor: Custom APT that handles the annotations and produces crypted key/values (that can be handled by the c++ lib)
-- testapp: Test application for testing all of the above
+Also file me issues with bugs / comments / ideas if you like :)
 
-Relevant notes for developing it:
-- JNI/Java bridge Tests are not supported by the platform so a "proxy" was created for giving it compatibility. Since this is not crucial for the project, it only works from the IDE, not from console (I should add all the classpaths dynamically before running the JUnit Starter. **Please ensure ALL the tests of the `:core` module pass from the Android Studio IDE**
-- JNI Tests are not supported out of the box, so there are no tests for it. A PR is welcome adding them (using cppunit or some tool ofc)
+### License
+
+BSD License
+
+Copyright (c) 2017-present. All rights reserved.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
