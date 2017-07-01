@@ -10,7 +10,7 @@
 #define _default_response ""
 
 std::map<std::string , std::string> _map;
-bool initialzed;
+bool initialized;
 CryptoWrapper crypto_wrapper;
 
 extern "C" {
@@ -30,7 +30,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1init(JNIEnv *env, jclass instance, jobject object_context) {
     if (initialized) {
         _map.clear();
-        throw "Already initialized"
+        throw "Already initialized";
     }
 
     Configurations configs(env, object_context);

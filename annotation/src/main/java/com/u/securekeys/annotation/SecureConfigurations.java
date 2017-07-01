@@ -106,6 +106,6 @@ public @interface SecureConfigurations {
      *
      * By default it wont check against the signing certificate
      */
-    String certificateSignature default null;
+    String certificateSignature() default "";
 
 }

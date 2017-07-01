@@ -38,10 +38,19 @@ import junit.framework.Assert;
     @SecureKey(key = "double_from_BuildConfig", value = BuildConfig.TESTING_VALUE_2)
 })
 public class MainActivity extends AppCompatActivity {
+
+    boolean initialized = false;
+
     @Override
     @SecureKey(key = "client-secret", value = "aD98E2GEk23TReYds9Zs9zdSdDBi23EAsdq29fXkpsDwp0W+h")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (!initialized) {
+            SecureEnvironment.initialize(this);
+            initialized = true;
+        }
+
         setContentView(R.layout.activity_main);
 
         Assert.assertEquals("aD98E2GEk23TReYds9Zs9zdSdDBi23EAsdq29fXkpsDwp0W+h", SecureEnvironment.getString("client-secret"));

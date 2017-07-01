@@ -122,7 +122,7 @@ public class ConfigurationsTest {
 
 		List<String> lines = builder.flatFile();
 
-		Assert.assertEquals(13, lines.size());
+		Assert.assertEquals(15, lines.size());
 		Assert.assertTrue(lines.contains("#define SECUREKEYS_HALT_IF_DEBUGGABLE true\n"));
 		Assert.assertTrue(lines.contains("#define SECUREKEYS_AES_KEY { 0x01, 0x03, 0x05 }\n"));
 		Assert.assertTrue(lines.contains("#define SECUREKEYS_AES_INITIAL_VECTOR { 0x01, 0x03, 0x05 }\n"));
@@ -140,7 +140,7 @@ public class ConfigurationsTest {
 
 		List<String> lines = builder.flatFile();
 
-		Assert.assertEquals(13, lines.size());
+		Assert.assertEquals(15, lines.size());
 		Assert.assertTrue(lines.contains("#define SECUREKEYS_HALT_IF_DEBUGGABLE false\n"));
 		Assert.assertTrue(lines.contains("#define SECUREKEYS_AES_INITIAL_VECTOR { 0x01, 0x03, 0x05 }\n"));
 	}
