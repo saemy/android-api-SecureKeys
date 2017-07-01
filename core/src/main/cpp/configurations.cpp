@@ -104,7 +104,7 @@ void Configurations::check_certificate(JNIEnv *env, jobject &object_context) {
 
         // Get package info with above params
         jmethodID method_get_package_info = env->GetMethodID(class_package_manager, "getPackageInfo", "(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;");
-        jobject object_package_info = env->CallObjectMethod(object_package_manager, method_get_package_info, object_package_name, field_get_signatures);
+        jobject object_package_info = env->CallObjectMethod(object_package_manager, method_get_package_info, object_package_name, object_get_signatures);
         
         // Get signatures field (Signature[])
         jfieldID field_signatures = env->GetFieldID(class_package_info, "signatures", "[Landroid/content/pm/Signature;");
@@ -165,23 +165,26 @@ void Configurations::check_installer(JNIEnv *env, jobject &object_context) {
         env->DeleteLocalRef(object_package_manager);
         env->DeleteLocalRef(object_package_name);
 
-        const char *raw_installer_package_name = env->GetStringUTFChars((jstring) object_installer_package_name, 0);
-        std::string installer_package_name(raw_installer_package_name);
-
         bool aux_safe = false;
-        for (int i = 0 ; i < sizeof(installers) / sizeof(installers[0]) ; ++i) {
-            std::string installer = installers[i];
-            if (installer_package_name.size() >= installer.size() && installer_package_name.substr(0, installer.size()) == installer) {
-                aux_safe = true;
+
+        if (object_installer_package_name) {
+            const char *raw_installer_package_name = env->GetStringUTFChars((jstring) object_installer_package_name, 0);
+            std::string installer_package_name(raw_installer_package_name);
+
+            for (int i = 0 ; i < sizeof(installers) / sizeof(installers[0]) ; ++i) {
+                std::string installer = installers[i];
+                if (installer_package_name.size() >= installer.size() && installer_package_name.substr(0, installer.size()) == installer) {
+                    aux_safe = true;
+                }
             }
+
+            env->ReleaseStringUTFChars((jstring) object_installer_package_name, 0);
+            env->DeleteLocalRef(object_installer_package_name);
         }
+
         if (!aux_safe) {
             safe = false;
         }
-
-        // Release string and delete reference
-        env->ReleaseStringUTFChars((jstring) object_installer_package_name, 0);
-        env->DeleteLocalRef(object_installer_package_name);
     }
 }
 

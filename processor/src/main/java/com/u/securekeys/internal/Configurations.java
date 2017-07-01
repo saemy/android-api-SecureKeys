@@ -63,14 +63,18 @@ public class Configurations {
 
     private String getInstallers() {
         String result = "{";
-        for (int i = 0 ; i < installers.length ; i++) {
-            String installer = installers[i];
 
-            result += (" " + wrap(installer));
-            if (i != installers.length - 1) {
-                result += ",";
+        if (installers != null) {
+            for (int i = 0 ; i < installers.length ; i++) {
+                String installer = installers[i];
+
+                result += (" " + wrap(installer));
+                if (i != installers.length - 1) {
+                    result += ",";
+                }
             }
         }
+
         result += " }";
         return result;
     }
