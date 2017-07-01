@@ -8,6 +8,11 @@ import com.u.securekeys.annotation.SecureConfigurations;
 import com.u.securekeys.annotation.SecureKey;
 import com.u.securekeys.annotation.SecureKeys;
 import junit.framework.Assert;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageInfo;
+import android.content.pm.Signature;
+import android.util.Log;
+import java.lang.Exception;
 
 /**
  * For having configurations, we could add here:
@@ -27,7 +32,8 @@ import junit.framework.Assert;
  }
  */
 @SecureConfigurations(
-    useAesRandomly = true
+    useAesRandomly = true,
+    certificateSignature = "1501784074"
 )
 @SecureKeys({
     @SecureKey(key = "a", value = "e"),
