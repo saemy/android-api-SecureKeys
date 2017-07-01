@@ -30,7 +30,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1init(JNIEnv *env, jclass instance, jobject object_context) {
     if (initialized) {
         _map.clear();
-        throw "Already initialized, this shouldnt be happening so the constants have been removed"
+        throw "Already initialized"
     }
 
     Configurations configs(env, object_context);

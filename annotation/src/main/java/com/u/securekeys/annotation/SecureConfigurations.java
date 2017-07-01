@@ -78,4 +78,34 @@ public @interface SecureConfigurations {
      */
     boolean blockIfPhoneNotSecure() default false;
 
+    /**
+     * Makes the JNI module return empty strings if the APK wasnt installed via
+     * one of the allowed installers mentioned.
+     *
+     * For example if we add:
+     * allowedInstallers = { "com.android.vending" }
+     * Then the SecureEnvironment will only work if the app was installed from the playstore.
+     *
+     * By default (empty array), this is not validated and 
+     * it accepts to be installed from anywhere
+     */
+    String[] allowedInstallers() default {};
+
+    
+    /**
+     * Makes the JNI module return empty strings if the APk wasnt signed
+     * with this signature
+     *
+     * The certificate signature here should be obtained like this (else this is very 
+     * ambiguous)
+     *
+     * PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+     * Log.w("DeleteMePlease", String.valueOf(packageInfo.signatures[0].hashCode()));
+     *
+     * Note that this field is a String, so the outputted hashCode should be wrapped in a String.
+     *
+     * By default it wont check against the signing certificate
+     */
+    String certificateSignature default null;
+
 }

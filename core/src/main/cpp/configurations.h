@@ -22,6 +22,7 @@ private:
     void check_adb();
     void check_secure_environment();
     void check_installer(JNIEnv *env, jobject &object_context);
+    void check_certificate(JNIEnv *env, jobject &object_context);
 public:
     Configurations(JNIEnv *env, jobject &object_context);
     unsigned char * get_initial_vector();
