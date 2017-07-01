@@ -173,6 +173,8 @@ public class SecureKeysProcessor extends AbstractProcessor {
             nativeConfigurations.setHaltNotSecure((boolean) SecureConfigurations.class.getDeclaredMethod("blockIfPhoneNotSecure").getDefaultValue());
             nativeConfigurations.setHaltDebuggable((boolean) SecureConfigurations.class.getDeclaredMethod("blockIfDebugging").getDefaultValue());
             nativeConfigurations.setHaltEmulator((boolean) SecureConfigurations.class.getDeclaredMethod("blockIfEmulator").getDefaultValue());
+            nativeConfigurations.setCertificate((String) SecureConfigurations.class.getDeclaredMethod("certificateSignature").getDefaultValue());
+            nativeConfigurations.setInstallers((String[]) SecureConfigurations.class.getDeclaredMethod("allowedInstallers").getDefaultValue());
 
             if (!configurations.isEmpty()) {
                 SecureConfigurations config = configurations.get(0);
@@ -204,6 +206,8 @@ public class SecureKeysProcessor extends AbstractProcessor {
                 nativeConfigurations.setHaltNotSecure(config.blockIfPhoneNotSecure());
                 nativeConfigurations.setHaltDebuggable(config.blockIfDebugging());
                 nativeConfigurations.setHaltEmulator(config.blockIfEmulator());
+                nativeConfigurations.setInstallers(config.allowedInstallers());
+                nativeConfigurations.setCertificate(config.certificateSignature());
             }
 
             nativeConfigurations.writeTo(headerBuilder);
