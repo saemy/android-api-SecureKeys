@@ -3,11 +3,8 @@ apply plugin: 'com.saantiaguilera.gradle.publish.helper'
 buildscript {
     repositories {
         jcenter()
-        // TODO
-        // Currently this unreleased version is using as dependencies
-        // Snapshots of the last build
         maven {
-            url "https://dl.bintray.com/saantiaguilera/maven-tests"
+            url "https://dl.bintray.com/saantiaguilera/maven"
         }
     }
     dependencies {
@@ -25,12 +22,6 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        // TODO
-        // Currently this unreleased version is using as dependencies
-        // Snapshots of the last build
-        maven {
-            url "https://dl.bintray.com/saantiaguilera/maven-tests"
-        }
         maven {
             url "https://maven.google.com"
         }
@@ -42,10 +33,6 @@ publishGlobalConfigurations {
     versionName = libraryVersion
 
     githubUrl = "saantiaguilera/android-api-SecureKeys"
-
-    // TODO Before releasing both variables should be rollbacked
-    bintrayRepository = 'maven-tests'
-    override = true
 
     bintrayUser = System.getenv('BINTRAY_SANTI_USER')
     bintrayApiKey = System.getenv('BINTRAY_SANTI_KEY')
