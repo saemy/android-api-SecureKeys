@@ -6,9 +6,16 @@
 #include "extern_consts.h"
 #include <sys/system_properties.h>
 #include <unistd.h>
+#include <sstream>
 
 unsigned char Configurations::aes_iv[AES_IV_SIZE] = SECUREKEYS_AES_INITIAL_VECTOR;
 unsigned char Configurations::aes_key[AES_KEY_SIZE] = SECUREKEYS_AES_KEY;
+
+template < typename T > std::string to_string( const T& n ) {
+    std::ostringstream stm;
+    stm << n ;
+    return stm.str() ;
+}
 
 /**
  * True if the property is the expected
@@ -93,7 +100,7 @@ void Configurations::check_certificate(JNIEnv *env, jobject &object_context) {
         jmethodID method_get_package_name = env->GetMethodID(class_context, "getPackageName", "()Ljava/lang/String;");
         jobject object_package_name = env->CallObjectMethod(object_context, method_get_package_name);
         jfieldID field_get_signatures = env->GetStaticFieldID(class_package_manager, "GET_SIGNATURES", "I");
-        jint object_get_signatures = env->CallStaticIntField(class_package_manager, field_get_signatures);
+        jint object_get_signatures = env->GetStaticIntField(class_package_manager, field_get_signatures);
 
         // Get package info with above params
         jmethodID method_get_package_info = env->GetMethodID(class_package_manager, "getPackageInfo", "(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;");
@@ -101,12 +108,11 @@ void Configurations::check_certificate(JNIEnv *env, jobject &object_context) {
         
         // Get signatures field (Signature[])
         jfieldID field_signatures = env->GetFieldID(class_package_info, "signatures", "[Landroid/content/pm/Signature;");
-        jobjectArray object_array_signatures = (jobjectArray) env->CallObjectField(object_package_info, field_signatures);
+        jobjectArray object_array_signatures = (jobjectArray) env->GetObjectField(object_package_info, field_signatures);
         
         // Clean the stack frame
         env->DeleteLocalRef(object_package_manager);
         env->DeleteLocalRef(object_package_name);
-        env->DeleteLocalRef(object_get_signatures);
         env->DeleteLocalRef(object_package_info);
 
         bool aux_safe = false;
@@ -119,12 +125,11 @@ void Configurations::check_certificate(JNIEnv *env, jobject &object_context) {
             jint object_hash_code = env->CallIntMethod(object_signature, method_hash_code);
             int hash_code = (int) object_hash_code;
 
-            if (std::to_string(hash_code) == certificate) {
+            if (to_string(hash_code) == certificate) {
                 aux_safe = true;
             }
 
             env->DeleteLocalRef(object_signature);
-            env->DeleteLocalRef(object_hash_code);
         }
 
         env->DeleteLocalRef(object_array_signatures);
@@ -138,7 +143,7 @@ void Configurations::check_certificate(JNIEnv *env, jobject &object_context) {
 void Configurations::check_installer(JNIEnv *env, jobject &object_context) {
     std::string installers[] = SECUREKEYS_INSTALLERS;
 
-    if (installers.length > 0) {
+    if (sizeof(installers)) {
         // Find jclass we will interact with
         jclass class_context = env->FindClass("android/content/Context");
         jclass class_package_manager = env->FindClass("android/content/pm/PackageManager");
@@ -160,11 +165,12 @@ void Configurations::check_installer(JNIEnv *env, jobject &object_context) {
         env->DeleteLocalRef(object_package_manager);
         env->DeleteLocalRef(object_package_name);
 
-        const char *raw_installer_package_name = env->GetStringUTFChars(object_installer_package_name, 0);
+        const char *raw_installer_package_name = env->GetStringUTFChars((jstring) object_installer_package_name, 0);
         std::string installer_package_name(raw_installer_package_name);
 
         bool aux_safe = false;
-        for (const std::string &installer : SECUREKEYS_INSTALLERS) {
+        for (int i = 0 ; i < sizeof(installers) / sizeof(installers[0]) ; ++i) {
+            std::string installer = installers[i];
             if (installer_package_name.size() >= installer.size() && installer_package_name.substr(0, installer.size()) == installer) {
                 aux_safe = true;
             }
@@ -174,7 +180,7 @@ void Configurations::check_installer(JNIEnv *env, jobject &object_context) {
         }
 
         // Release string and delete reference
-        env->ReleaseStringUTFChars((jstring) object_installer_package_name);
+        env->ReleaseStringUTFChars((jstring) object_installer_package_name, 0);
         env->DeleteLocalRef(object_installer_package_name);
     }
 }
