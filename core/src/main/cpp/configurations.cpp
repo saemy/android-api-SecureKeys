@@ -246,7 +246,6 @@ void Configurations::check_adb() {
     if (SECUREKEYS_HALT_IF_ADB_ON) {
         if (validate_property_contains("sys.usb.state", "adb") ||
             validate_property_contains("sys.usb.config", "adb") ||
-            validate_property_contains("ro.adb.secure", "1") ||
             validate_property_contains("qemu.adb.secure", "0") ||
             validate_property_contains("persist.adb.notify", "1") ||
             validate_property_contains("persist.sys.usb.config", "adb")) {
