@@ -17,7 +17,11 @@ public class NativePackagerPlugin implements Plugin<Project> {
     private static final List<String> TASK_DEPENDANTS = [
             'generate',
             'compile',
-            'assemble'
+            'assemble',
+            'implementation',
+            'api',
+            'compileOnly',
+            'runtimeOnly'
     ]
 
     private static final String SECUREKEYS_PACKAGE_NAME = 'com.saantiaguilera.securekeys/core'
@@ -125,7 +129,7 @@ public class NativePackagerPlugin implements Plugin<Project> {
         project.tasks.build.dependsOn(TASK_EXTRACT_NATIVE_FILES)
         project.tasks.whenTaskAdded { task ->
             TASK_DEPENDANTS.each {
-                if (task.name.startsWith(it)) {
+                if (task.name.toLowerCase().contains(it.toLowerCase())) {
                     task.dependsOn(TASK_EXTRACT_NATIVE_FILES)
                 }
             }
