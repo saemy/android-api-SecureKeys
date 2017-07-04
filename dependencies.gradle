@@ -1,5 +1,5 @@
 ext {
-    supportVersion = '25.4.0'
+    supportVersion = '25.3.0'
     support = [
         annotations : "com.android.support:support-annotations:$supportVersion",
         appcompat : "com.android.support:appcompat-v7:$supportVersion"
