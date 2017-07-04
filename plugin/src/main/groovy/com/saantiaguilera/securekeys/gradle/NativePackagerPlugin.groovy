@@ -100,16 +100,22 @@ public class NativePackagerPlugin implements Plugin<Project> {
     def addNativeAarRetrievalTasks(Project project) {
         project.task(TASK_EXTRACT_NATIVE_FILES) {
             doLast {
-                project.configurations.all*.each {
-                    def file = it.absoluteFile
-                    // Check if the file is of the package name. 
-                    // Also we check if its our local environment since we dont add it via gradle
-                    if (file.absolutePath.contains(SECUREKEYS_PACKAGE_NAME) ||
-                            file.absolutePath.contains(SECUREKEYS_PACKAGE_LOCAL_NAME)) {
-                        project.copy {
-                            from project.zipTree(file)
-                            into AAR_UNCOMPRESSED_ROOT_DESTINATION
-                            include "${AAR_GENERATED_FOLDER}/${FILE_BLOB_ALL}"
+                project.configurations.findAll {
+                    project.gradle.gradleVersion >= '4.0' ?
+                    it.isCanBeResolved() :
+                    true
+                }.each { config ->
+                    config.files.each {
+                        def file = it.absoluteFile
+                        // Check if the file is of the package name. 
+                        // Also we check if its our local environment since we dont add it via gradle
+                        if (file.absolutePath.contains(SECUREKEYS_PACKAGE_NAME) ||
+                                file.absolutePath.contains(SECUREKEYS_PACKAGE_LOCAL_NAME)) {
+                            project.copy {
+                                from project.zipTree(file)
+                                into AAR_UNCOMPRESSED_ROOT_DESTINATION
+                                include "${AAR_GENERATED_FOLDER}/${FILE_BLOB_ALL}"
+                            }
                         }
                     }
                 }
