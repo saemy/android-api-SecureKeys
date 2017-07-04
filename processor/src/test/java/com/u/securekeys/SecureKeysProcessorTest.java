@@ -22,17 +22,10 @@ public class SecureKeysProcessorTest {
             .withProcessors(new SecureKeysProcessor())
             .compile(JavaFileObjects.forSourceString("EmptyClass", Mocks.MOCK_EMPTY));
 
-        validate(compilation);
-        Assert.assertTrue(stripClasses(compilation.generatedFiles()).isEmpty());
-    }
-
-    void validate(Compilation compilation) {
-        // Check that it succeded
         assertThat(compilation).succeeded();
-
-        // Check that only the warning of the classpath conjunction of source is shown, no more.
         for (Diagnostic diagnostic : compilation.warnings()) {
-            if (!diagnostic.getMessage(Locale.ENGLISH).contains("Supported source version 'RELEASE_7' from annotation processor")) {
+            if (!diagnostic.getMessage(Locale.ENGLISH).contains("Supported source version 'RELEASE_7' from annotation processor") &&
+                    !diagnostic.getMessage(Locale.ENGLISH).contains("No native files found for generating the full shared object. Maybe the plugin is missing?")) {
                 Assert.fail("Warnings found in the compilation: " + diagnostic.getMessage(Locale.ENGLISH));
             }
         }
