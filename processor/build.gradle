@@ -3,5 +3,4 @@ dependencies {
 
     testCompile testing.googleTruth
     testCompile testing.googleTesting
-    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
