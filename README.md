@@ -10,21 +10,11 @@ SecureKeys can be included in any Android application.
 
 SecureKeys supports Android 2.3 (Gingerbread / ApiLevel 9) and later.
 
-SecureKeys needs the developer to have NDK installed
+SecureKeys needs the developer to have NDK and CMake installed.
 
 ### Usage
 
-For usage, information, installation, etc. Please refer to the [wiki](https://github.com/saantiaguilera/android-api-SecureKeys/wiki)
-
-### Proguard
-
-Currently the library supports transitively Proguard, so just by adding it you should be safe :)
-
-### Contributing
-
-Please feel free to fork and open PRs!
-
-Also file me issues with bugs / comments / ideas if you like :)
+For usage, information, installation and pretty much all please refer to the [wiki](https://github.com/saantiaguilera/android-api-SecureKeys/wiki)
 
 ### License
 
