@@ -37,7 +37,10 @@ public class NativePackagerPlugin implements Plugin<Project> {
     private static final String FILE_BLOB_ALL = '**'
     private static final String FILE_BLOB_EXTERNAL_HEADERS = 'main/cpp/**/extern_*.h'
 
-    private static final String CPP_FLAGS = "-std=c++11 -fexceptions"
+    private static final HashMap<String, String> CPP_FLAGS = [
+            std: "c++11",
+            fexceptions: "NAN"
+    ]
 
     @Override
     void apply(Project project) {
@@ -90,12 +93,28 @@ public class NativePackagerPlugin implements Plugin<Project> {
         if (!project.properties.dontCompileNdk) {
             project.android.defaultConfig.externalNativeBuild {
                 cmake {
-                    cppFlags CPP_FLAGS
+                    String currentFlags = cppFlags ?: ""
+                    CPP_FLAGS.each { key, value ->
+                        if (!currentFlags.contains("-$key")) {
+                            // We have to add the key, check if it has value or not
+                            if (value.contentEquals('NAN')) {
+                                currentFlags += " -$key"
+                            } else {
+                                currentFlags += " -$key=$value"
+                            }
+                        }
+                    }
+                    cppFlags currentFlags
                 }
             }
             project.android.externalNativeBuild {
                 cmake {
-                    path "${AAR_UNCOMPRESSED_ROOT_DESTINATION}/${AAR_GENERATED_FOLDER}/${FILE_CMAKE}"
+                    String currentPath = path ?: ""
+                    if (path) {
+                        currentPath += ";"
+                    }
+                    currentPath += "${AAR_UNCOMPRESSED_ROOT_DESTINATION}/${AAR_GENERATED_FOLDER}/${FILE_CMAKE}"
+                    path currentPath
                 }
             }
         }
