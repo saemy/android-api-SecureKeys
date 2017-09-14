@@ -1,5 +1,6 @@
 package com.saantiaguilera.securekeys.gradle
 
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Zip
@@ -7,22 +8,11 @@ import org.gradle.api.tasks.bundling.Zip
 /**
  * Created by saantiaguilera on 6/22/17.
  */
-public class NativePackagerPlugin implements Plugin<Project> {
+class NativePackagerPlugin implements Plugin<Project> {
 
     private static final String AAR = 'aar'
 
-    private static final String TASK_EXTRACT_NATIVE_FILES = 'extractSecureKeysNativeFiles'
     private static final String TASK_PACKAGE_NATIVE_FILES = 'packageNativeFilesToAar'
-
-    private static final List<String> TASK_DEPENDANTS = [
-            'generate',
-            'compile',
-            'assemble',
-            'implementation',
-            'api',
-            'compileOnly',
-            'runtimeOnly'
-    ]
 
     private static final String SECUREKEYS_PACKAGE_NAME = 'com.saantiaguilera.securekeys/core'
     private static final String SECUREKEYS_PACKAGE_LOCAL_NAME = 'SecureKeys/testapp/libs/core'
@@ -37,10 +27,17 @@ public class NativePackagerPlugin implements Plugin<Project> {
     private static final String FILE_BLOB_ALL = '**'
     private static final String FILE_BLOB_EXTERNAL_HEADERS = 'main/cpp/**/extern_*.h'
 
-    private static final String CPP_FLAGS = "-std=c++11 -fexceptions"
+    private static final HashMap<String, String> CPP_FLAGS = [
+            std: "c++11",
+            fexceptions: "NAN"
+    ]
 
     @Override
     void apply(Project project) {
+        if (!project.extensions.hasProperty("autoCompileSecureKeys")) {
+            project.extensions.autoCompileSecureKeys = true
+        }
+
         if (project.properties.nativeAarRepackage) {
             // Iterate the variants and add a task for repackaging the aar.
             // This should be use be me only.
@@ -49,7 +46,7 @@ public class NativePackagerPlugin implements Plugin<Project> {
             }
         } else {
             // Add tasks for retrieveing native files from aar
-            addNativeAarRetrievalTasks(project)
+            addNativeAarRetrieval(project)
             // Add to the project the flags for building the native library
             addNativeBuildingSupport(project)
         }
@@ -87,50 +84,62 @@ public class NativePackagerPlugin implements Plugin<Project> {
     }
 
     def addNativeBuildingSupport(Project project) {
-        if (!project.properties.dontCompileNdk) {
+        // This is because android studio sync wont trigger any gradle task,
+        // Which means our native aar retrieval wont be run, and this will break it.
+        if (!project.gradle.startParameter.taskNames.toListString().contentEquals("[]") &&
+                project.properties.autoCompileSecureKeys) {
             project.android.defaultConfig.externalNativeBuild {
                 cmake {
-                    cppFlags CPP_FLAGS
+                    String currentFlags = cppFlags ?: ""
+                    CPP_FLAGS.each { key, value ->
+                        if (!currentFlags.contains("-$key")) {
+                            // We have to add the key, check if it has value or not
+                            if (value.contentEquals('NAN')) {
+                                currentFlags += " -$key"
+                            } else {
+                                currentFlags += " -$key=$value"
+                            }
+                        }
+                    }
+                    cppFlags currentFlags
                 }
             }
             project.android.externalNativeBuild {
                 cmake {
+                    if (path) {
+                        throw new GradleException("We have detected that your project already has a declared CMake. Please " +
+                                "if you have multiple ndk projects in your module build a root CMake with both your lists and " +
+                                "the securekeys one. \n" +
+                                "More information at: https://developer.android.com/studio/projects/add-native-code.html - Include other CMake projects.\n" +
+                                "The CMakeLists.txt from securekeys can be found in ${project.name}/build/secure-keys/include/main/cpp/CMakeLists.txt.\n" +
+                                "Once this is done, please add the property autoCompileSecureKeys to the module.\n" +
+                                "ext.autoCompileSecureKeys = false")
+                    }
                     path "${AAR_UNCOMPRESSED_ROOT_DESTINATION}/${AAR_GENERATED_FOLDER}/${FILE_CMAKE}"
                 }
             }
         }
     }
 
-    def addNativeAarRetrievalTasks(Project project) {
-        project.task(TASK_EXTRACT_NATIVE_FILES) {
-            doLast {
-                project.configurations.findAll {
-                    project.gradle.gradleVersion >= '4.0' ?
-                    it.isCanBeResolved() :
-                    true
-                }.each { config ->
-                    config.files.each {
-                        def file = it.absoluteFile
-                        // Check if the file is of the package name. 
-                        // Also we check if its our local environment since we dont add it via gradle
-                        if (file.absolutePath.contains(SECUREKEYS_PACKAGE_NAME) ||
-                                file.absolutePath.contains(SECUREKEYS_PACKAGE_LOCAL_NAME)) {
-                            project.copy {
-                                from project.zipTree(file)
-                                into AAR_UNCOMPRESSED_ROOT_DESTINATION
-                                include "${AAR_GENERATED_FOLDER}/${FILE_BLOB_ALL}"
-                            }
+    def addNativeAarRetrieval(Project project) {
+        project.afterEvaluate {
+            project.configurations.findAll {
+                project.gradle.gradleVersion >= '4.0' ?
+                        it.isCanBeResolved() :
+                        true
+            }.each { config ->
+                config.files.each {
+                    def file = it.absoluteFile
+                    // Check if the file is of the package name.
+                    // Also we check if its our local environment since we dont add it via gradle
+                    if (file.absolutePath.contains(SECUREKEYS_PACKAGE_NAME) ||
+                            file.absolutePath.contains(SECUREKEYS_PACKAGE_LOCAL_NAME)) {
+                        project.copy {
+                            from project.zipTree(file)
+                            into AAR_UNCOMPRESSED_ROOT_DESTINATION
+                            include "${AAR_GENERATED_FOLDER}/${FILE_BLOB_ALL}"
                         }
                     }
-                }
-            }
-        }
-
-        project.tasks.build.dependsOn(TASK_EXTRACT_NATIVE_FILES)
-        project.tasks.whenTaskAdded { task ->
-            TASK_DEPENDANTS.each {
-                if (task.name.toLowerCase().contains(it.toLowerCase())) {
-                    task.dependsOn(TASK_EXTRACT_NATIVE_FILES)
                 }
             }
         }

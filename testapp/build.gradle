@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'saantiaguilera.securekeys'
 
 android {
     compileSdkVersion project.targetApiLevel.toInteger()
@@ -76,3 +75,6 @@ dependencies {
         println "Please run first core:assembleRelease before using the testapp"
     }
 }
+
+//Only if your project is a native one: ext.autoCompileSecureKeys = false
+apply plugin: 'saantiaguilera.securekeys'
