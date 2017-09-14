@@ -1,5 +1,6 @@
 package com.saantiaguilera.securekeys.gradle
 
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Zip
@@ -33,6 +34,10 @@ class NativePackagerPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        if (!project.extensions.hasProperty("autoCompileSecureKeys")) {
+            project.extensions.autoCompileSecureKeys = true
+        }
+
         if (project.properties.nativeAarRepackage) {
             // Iterate the variants and add a task for repackaging the aar.
             // This should be use be me only.
@@ -82,7 +87,7 @@ class NativePackagerPlugin implements Plugin<Project> {
         // This is because android studio sync wont trigger any gradle task,
         // Which means our native aar retrieval wont be run, and this will break it.
         if (!project.gradle.startParameter.taskNames.toListString().contentEquals("[]") &&
-                !project.properties.dontCompileNdk) {
+                project.properties.autoCompileSecureKeys) {
             project.android.defaultConfig.externalNativeBuild {
                 cmake {
                     String currentFlags = cppFlags ?: ""
@@ -101,12 +106,16 @@ class NativePackagerPlugin implements Plugin<Project> {
             }
             project.android.externalNativeBuild {
                 cmake {
-                    String currentPath = path ?: ""
                     if (path) {
-                        currentPath += ";"
+                        throw new GradleException("We have detected that your project already has a declared CMake. Please " +
+                                "if you have multiple ndk projects in your module build a root CMake with both your lists and " +
+                                "the securekeys one. \n" +
+                                "More information at: https://developer.android.com/studio/projects/add-native-code.html - Include other CMake projects.\n" +
+                                "The CMakeLists.txt from securekeys can be found in ${project.name}/build/secure-keys/include/main/cpp/CMakeLists.txt.\n" +
+                                "Once this is done, please add the property autoCompileSecureKeys to the module.\n" +
+                                "ext.autoCompileSecureKeys = false")
                     }
-                    currentPath += "${AAR_UNCOMPRESSED_ROOT_DESTINATION}/${AAR_GENERATED_FOLDER}/${FILE_CMAKE}"
-                    path currentPath
+                    path "${AAR_UNCOMPRESSED_ROOT_DESTINATION}/${AAR_GENERATED_FOLDER}/${FILE_CMAKE}"
                 }
             }
         }
