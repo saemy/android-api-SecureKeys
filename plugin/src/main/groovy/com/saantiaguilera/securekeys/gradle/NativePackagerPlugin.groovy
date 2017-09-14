@@ -7,22 +7,11 @@ import org.gradle.api.tasks.bundling.Zip
 /**
  * Created by saantiaguilera on 6/22/17.
  */
-public class NativePackagerPlugin implements Plugin<Project> {
+class NativePackagerPlugin implements Plugin<Project> {
 
     private static final String AAR = 'aar'
 
-    private static final String TASK_EXTRACT_NATIVE_FILES = 'extractSecureKeysNativeFiles'
     private static final String TASK_PACKAGE_NATIVE_FILES = 'packageNativeFilesToAar'
-
-    private static final List<String> TASK_DEPENDANTS = [
-            'generate',
-            'compile',
-            'assemble',
-            'implementation',
-            'api',
-            'compileOnly',
-            'runtimeOnly'
-    ]
 
     private static final String SECUREKEYS_PACKAGE_NAME = 'com.saantiaguilera.securekeys/core'
     private static final String SECUREKEYS_PACKAGE_LOCAL_NAME = 'SecureKeys/testapp/libs/core'
@@ -52,7 +41,7 @@ public class NativePackagerPlugin implements Plugin<Project> {
             }
         } else {
             // Add tasks for retrieveing native files from aar
-            addNativeAarRetrievalTasks(project)
+            addNativeAarRetrieval(project)
             // Add to the project the flags for building the native library
             addNativeBuildingSupport(project)
         }
@@ -90,7 +79,10 @@ public class NativePackagerPlugin implements Plugin<Project> {
     }
 
     def addNativeBuildingSupport(Project project) {
-        if (!project.properties.dontCompileNdk) {
+        // This is because android studio sync wont trigger any gradle task,
+        // Which means our native aar retrieval wont be run, and this will break it.
+        if (!project.gradle.startParameter.taskNames.toListString().contentEquals("[]") &&
+                !project.properties.dontCompileNdk) {
             project.android.defaultConfig.externalNativeBuild {
                 cmake {
                     String currentFlags = cppFlags ?: ""
@@ -120,36 +112,25 @@ public class NativePackagerPlugin implements Plugin<Project> {
         }
     }
 
-    def addNativeAarRetrievalTasks(Project project) {
-        project.task(TASK_EXTRACT_NATIVE_FILES) {
-            doLast {
-                project.configurations.findAll {
-                    project.gradle.gradleVersion >= '4.0' ?
-                    it.isCanBeResolved() :
-                    true
-                }.each { config ->
-                    config.files.each {
-                        def file = it.absoluteFile
-                        // Check if the file is of the package name. 
-                        // Also we check if its our local environment since we dont add it via gradle
-                        if (file.absolutePath.contains(SECUREKEYS_PACKAGE_NAME) ||
-                                file.absolutePath.contains(SECUREKEYS_PACKAGE_LOCAL_NAME)) {
-                            project.copy {
-                                from project.zipTree(file)
-                                into AAR_UNCOMPRESSED_ROOT_DESTINATION
-                                include "${AAR_GENERATED_FOLDER}/${FILE_BLOB_ALL}"
-                            }
+    def addNativeAarRetrieval(Project project) {
+        project.afterEvaluate {
+            project.configurations.findAll {
+                project.gradle.gradleVersion >= '4.0' ?
+                        it.isCanBeResolved() :
+                        true
+            }.each { config ->
+                config.files.each {
+                    def file = it.absoluteFile
+                    // Check if the file is of the package name.
+                    // Also we check if its our local environment since we dont add it via gradle
+                    if (file.absolutePath.contains(SECUREKEYS_PACKAGE_NAME) ||
+                            file.absolutePath.contains(SECUREKEYS_PACKAGE_LOCAL_NAME)) {
+                        project.copy {
+                            from project.zipTree(file)
+                            into AAR_UNCOMPRESSED_ROOT_DESTINATION
+                            include "${AAR_GENERATED_FOLDER}/${FILE_BLOB_ALL}"
                         }
                     }
-                }
-            }
-        }
-
-        project.tasks.build.dependsOn(TASK_EXTRACT_NATIVE_FILES)
-        project.tasks.whenTaskAdded { task ->
-            TASK_DEPENDANTS.each {
-                if (task.name.toLowerCase().contains(it.toLowerCase())) {
-                    task.dependsOn(TASK_EXTRACT_NATIVE_FILES)
                 }
             }
         }
