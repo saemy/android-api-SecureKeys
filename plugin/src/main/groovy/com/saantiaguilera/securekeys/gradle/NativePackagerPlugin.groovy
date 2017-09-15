@@ -25,7 +25,7 @@ class NativePackagerPlugin implements Plugin<Project> {
     private static final String FILE_BLOB_H = 'main/cpp/**/*.h'
     private static final String FILE_BLOB_SO = '**/*.so'
     private static final String FILE_BLOB_ALL = '**'
-    private static final String FILE_BLOB_EXTERNAL_HEADERS = 'main/cpp/**/extern_*.h'
+    //private static final String FILE_BLOB_EXTERNAL_HEADERS = 'main/cpp/**/extern_*.h'
 
     private static final HashMap<String, String> CPP_FLAGS = [
             std: "c++11",
@@ -62,7 +62,7 @@ class NativePackagerPlugin implements Plugin<Project> {
 
         task.from project.zipTree("${path}${project.name}-${variant}.${AAR}")
         task.exclude(FILE_BLOB_SO) // Do not include shared libraries into final AAR
-        task.exclude(FILE_BLOB_EXTERNAL_HEADERS) // Do not include extern_**.h classes to the final AAR
+        //task.exclude(FILE_BLOB_EXTERNAL_HEADERS) // Do not include extern_**.h classes to the final AAR
         task.from("src") {
             include(FILE_BLOB_H)
             include(FILE_BLOB_CPP)
