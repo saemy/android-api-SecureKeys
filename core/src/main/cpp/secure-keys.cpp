@@ -9,16 +9,21 @@
 
 #define _default_response ""
 
+// Global values
 std::map<std::string , std::string> _map;
 bool initialized;
 CryptoWrapper crypto_wrapper;
 
+// Exports
 extern "C" {
     JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved);
     JNIEXPORT jstring JNICALL Java_com_u_securekeys_SecureEnvironment__1getString(JNIEnv *env, jclass instance, jstring key);
     JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1init(JNIEnv *env, jclass instance, jobject context_object);
 };
 
+/**
+ * Native load of library
+ */
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv* env;
     if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
@@ -27,6 +32,10 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     return JNI_VERSION_1_6;
 }
 
+/**
+ * Initialized the library with a given Application Context. This should always be called else the
+ * secure values wont be retrievable (nor hold in memory)
+ */
 JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1init(JNIEnv *env, jclass instance, jobject object_context) {
     if (initialized) {
         _map.clear();
@@ -48,6 +57,10 @@ JNIEXPORT void JNICALL Java_com_u_securekeys_SecureEnvironment__1init(JNIEnv *en
     initialized = true;
 }
 
+/**
+ * Get a value from a given key in a secure way
+ * If the environment is compromised, it will return a string with the value of #{_default_response}
+ */
 JNIEXPORT jstring JNICALL Java_com_u_securekeys_SecureEnvironment__1getString
         (JNIEnv *env, jclass instance, jstring key) {
     // Get the hash of the string param

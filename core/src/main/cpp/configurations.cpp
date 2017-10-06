@@ -140,6 +140,9 @@ void Configurations::check_certificate(JNIEnv *env, jobject &object_context) {
     }
 }
 
+/**
+ * Checks that the installee is not a snitch
+ */
 void Configurations::check_installer(JNIEnv *env, jobject &object_context) {
     std::string installers[] = SECUREKEYS_INSTALLERS;
 
@@ -227,6 +230,9 @@ void Configurations::check_debug() {
     }
 }
 
+/**
+ * Check if the system is an emulator or not
+ */
 void Configurations::check_emulator() {
     if (SECUREKEYS_HALT_IF_EMULATOR) {
         if (validate_property_contains("ro.kernel.qemu", "1") ||
@@ -242,6 +248,9 @@ void Configurations::check_emulator() {
     }
 }
 
+/**
+ * Check if the phone is connected to adb or not
+ */
 void Configurations::check_adb() {
     if (SECUREKEYS_HALT_IF_ADB_ON) {
         if (validate_property_contains("sys.usb.state", "adb") ||
@@ -254,6 +263,9 @@ void Configurations::check_adb() {
     }
 }
 
+/**
+ * Check that the phone is not rooted
+ */
 void Configurations::check_secure_environment() {
     if (SECUREKEYS_HALT_IF_PHONE_NOT_SECURE) {
         if (validate_property_contains("ro.secure", "0") ||

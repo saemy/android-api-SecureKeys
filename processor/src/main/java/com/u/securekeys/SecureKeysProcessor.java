@@ -23,6 +23,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
+/**
+ * Missing javadoc. Add documentation to this module.
+ */
 @SupportedAnnotationTypes({ SecureKey.CLASSPATH, SecureKeys.CLASSPATH, SecureConfigurations.CLASSPATH, "*" })
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class SecureKeysProcessor extends AbstractProcessor {
