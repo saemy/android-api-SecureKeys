@@ -7,10 +7,10 @@ import java.security.PermissionCollection;
 import java.util.Map;
 
 /**
- * Removes cryptographics restrictions imposed by java jce. You should have it installed in your
- * jre/lib/security. But if not (for travis and other CI's running) we disable them.
+ * Removes cryptographics restrictions imposed by java jce.
  *
- * Created by saguilera on 3/4/17.
+ * You should have it installed in your jre/lib/security.
+ * But if not (for travis and other CI's running) we disable them for developing.
  */
 class Restrictions {
 

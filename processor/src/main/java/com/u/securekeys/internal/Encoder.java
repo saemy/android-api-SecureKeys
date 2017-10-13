@@ -16,6 +16,7 @@ import javax.xml.bind.DatatypeConverter;
  */
 public class Encoder {
 
+    // Hashing algorithm
     private static String hash = "SHA-256";
 
     //Charset
@@ -30,6 +31,11 @@ public class Encoder {
     // Key used for AES cypher
     private final byte[] keyBytes;
 
+    /**
+     * Encoder constructor
+     * @param initialVectorBytes aes iv
+     * @param keyBytes aes key
+     */
     public Encoder(byte[] initialVectorBytes, byte[] keyBytes) {
         if (keyBytes.length != 32) {
             throw new IllegalStateException("Key bytes length should be 32 and its: " + initialVectorBytes.length);
@@ -60,10 +66,20 @@ public class Encoder {
         }
     }
 
+    /**
+     * Base64 encode a byte[]
+     * @param bytes to encode to base64
+     * @return human readable string from the given bytes
+     */
     public static String base64(byte[] bytes) {
         return DatatypeConverter.printBase64Binary(bytes);
     }
 
+    /**
+     * Encode something, this will apply AES 256 - CBC - 5B Padding -> Base 64.
+     * @param what
+     * @return
+     */
     public String encode(String what) {
         try {
             return base64(aes(what.getBytes(Charset.forName("UTF-8"))));
@@ -73,6 +89,11 @@ public class Encoder {
         }
     }
 
+    /**
+     * Apply AES 256 - CBC - 5B Padding to a byte[] with the key/iv supplied in the init
+     * @param content to encrypt
+     * @return encrypted content
+     */
     byte[] aes(byte[] content) {
         try {
             SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");

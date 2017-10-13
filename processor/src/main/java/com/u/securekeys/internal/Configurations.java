@@ -2,6 +2,9 @@ package com.u.securekeys.internal;
 
 import java.lang.NullPointerException;
 
+/**
+ * Configurations DTO.
+ */
 public class Configurations {
 
     private boolean haltDebuggable;
@@ -49,6 +52,12 @@ public class Configurations {
         certificate = cert;
     }
 
+    /**
+     * Transforms a byte array into a "developer readable" string,
+     * eg: [2Bytes] -> "{ 0xXX, 0xYY }"
+     * @param arr to transform
+     * @return dev readable byte array
+     */
     private String byteArrayToString(byte arr[]) {
         String keyString = "{ ";
         for (int i = 0 ; i < arr.length ; i++) {
@@ -61,6 +70,10 @@ public class Configurations {
         return keyString;
     }
 
+    /**
+     * Get an array of installers as a string
+     * @return an array of installers in a single string { "a", "b", ... }
+     */
     private String getInstallers() {
         String result = "{";
 
@@ -83,10 +96,19 @@ public class Configurations {
         return certificate == null ? "" : certificate;
     }
 
+    /**
+     * Wrap a string in quotes
+     * @param str to wrap
+     * @return wrapped string
+     */
     private String wrap(String str) {
         return ("\"" + str + "\"");
     }
 
+    /**
+     * Write the DTO into a native header builder
+     * @param builder to write the DTO info to.
+     */
     public void writeTo(NativeHeaderBuilder builder) {
         if (aesKey == null || aesVector == null) {
             throw new NullPointerException("Missing aesKey/Vector in configurations. Please set them");

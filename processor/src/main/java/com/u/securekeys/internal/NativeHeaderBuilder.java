@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.IOException;
 
+/**
+ * Builder class for writing a simple native header (*.h/*.hpp) file made of precompile
+ * macro directives (#define)
+ */
 public class NativeHeaderBuilder {
 
     private List<String> imports;
@@ -40,6 +44,11 @@ public class NativeHeaderBuilder {
         }
     }
 
+    /**
+     * Flattens the class builder into a list of strings, where each string is a
+     * file line.
+     * @return list of strings composing the whole .h/.hpp file
+     */
     public List<String> flatFile() {
         List<String> lines =  new ArrayList<>();
         lines.add("// Created by SecureKeys Annotation Processor - Santiago Aguilera\n\n");
