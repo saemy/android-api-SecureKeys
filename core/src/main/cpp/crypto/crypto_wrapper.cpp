@@ -29,7 +29,7 @@ std::string CryptoWrapper::decode_value(std::string value) {
         free(input);
         throw "Couldnt assign memmory for buffer inside decode";
     }
-    memset(buff, src_len, 0);
+    memset(buff, 0, src_len);
 
     // Set key and iv
     unsigned int key_schedule[AES_BLOCK_SIZE * 4] = { 0 };
